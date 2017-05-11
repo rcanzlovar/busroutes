@@ -1,0 +1,9 @@
+<?php //inc/dbparams.inc.php
+
+$username = "root";
+$password = "wordpass";
+
+$dbhost = "localhost";
+$dbname = 'rtd_transit_201608';
+
+?>
