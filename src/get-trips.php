@@ -2,6 +2,7 @@
 //get-trips.php
 
 $DEBUG = 1; 
+echo ("DEBUG = " . $DEBUG);
 
 // 20160721 rca changed msql_connect to mysqli_connect and mysqli_close
 // 20160722 rca named get-routes.php and made the sql more restrictive
@@ -48,44 +49,80 @@ $DEBUG = 1;
 // stop_url      | varchar(200) | NO   |     | NULL
 // location_type | int(2)       | NO   |     | NULL
 
+
 include_once ("funcs.php");
 
 include_once ('dbconnect.php');
-require "getlogs.php";
-logit($link);
+//require "getlogs.php";
+//logit($link);
+
+
+//s = service_id
+//dt=departure_time
 
 
 
+
+if (isset($_GET['s'])) {
+    $service_id = $_GET['s']; 
+}
+
+if (isset($_GET['dt'])) {
+    $departure_time = $_GET['dt']; 
+}
+
+if (isset($_GET['r'])) {
+    $route_id = $_GET['r']; 
+}
+
+
+if (isset($_GET['t'])) {
+    $trip_id = $_GET['t']; 
+}
+echo ("ROUTID" . $route_id);
+
+
+//DEPARTURE TIME
 // here we set $time parameters, if needed
-$sql_time_parameters = "AND st.departure_time > curtime() " . 
-    "AND st.departure_time < date_add(curtime(), interval 3 hour) ";
-    if (isset ($_GET["departure_time"])) {
-        // probably should validate the time here and display an 
-        if ($_GET["departure_time"] == "all") {
-           $sql_time_parameters = "";
+// 23feb18 rca
+// by default, go 20 minutes in the past and three hours in the future
 
-        } else {
-            $sql_time_parameters = "AND st.departure_time > " . 
-                $_GET["departure_time"] . " "  . 
-                "AND st.departure_time <= date_add('" . 
-                $_GET["departure_time"] . 
+$sql_time_parameters = "AND st.departure_time > date_sub(curtime(), interval 20 minute) " . 
+    "AND st.departure_time < date_add(curtime(), interval 3 hour) ";
+
+if (isset ($departure_time)) {
+    // probably should validate the time here and display an 
+    if ($departure_time == "all") {
+        $sql_time_parameters = "";
+
+    } else {
+        $sql_time_parameters = "AND st.departure_time > " . 
+            $departure_time . " "  . 
+            "AND st.departure_time <= date_add('" . 
+            $departure_time . 
             "', INTERVAL 3 HOUR ";
-           $sql_time_parameters = "AND st.departure_time > '" . 
-           $_GET["departure_time"] .  "' ";
-        }
+        $sql_time_parameters = "AND st.departure_time > '" . 
+           $departure_time .  "' ";
     }
-    // here we set $route_id
-    if (isset ($_GET["service_id"])) {
-		$service_id_param = "AND t.service_id in (" . add_quotes($_GET["service_id"]) . ") ";
+}
+
+    //SERVICE ID
+    // here we set $service_id_param
+    if (isset ($service_id)) {
+		$service_id_param = "AND t.service_id in (" . add_quotes($service_id) . ") ";
     } else {		
 		$service_id_param = "AND t.service_id in (" . add_quotes(get_service($link,getdate()["weekday"])) . ") ";
 	}
+
+
+    //ROUTE ID
     // here we set $route_id
-    if (isset ($_GET["route_id"]) && !isset ($route_id)) {
-        $route_id = $_GET["route_id"];
-    } else if (!isset ($route_id)) {
-        $route_id = "BOLT";
+    if (!isset ($route_id) ) {
+        $route_id_param = "BOLT";
     } 
+
+
+
 
     // build SQL query
     $query = 
@@ -106,25 +143,26 @@ t.trip_id as trip_id,
 st.stop_sequence as stop_sequence,
 st.arrival_time as arrival_time,
 st.departure_time as departure_time 
- FROM trips t, stop_times st, routes r, stops s ";
+ FROM trips t, stop_times st, routes r, stops s \n";
 
+//print ("QUERY <pre>" . $query . "</pre><br/>\n") if $DEBUG;
 
     if (isset ($_GET["trip_id"])) {
         $query .= " WHERE t.trip_id = '" . $_GET["trip_id"] . "' ";
     } else { 
         if (isset ($route_id)) {
-            $query .= " WHERE t.route_id = '" . $route_id . "' ";
-        } else {
-            $query .= " WHERE t.route_id = 'BOLT' ";
+            $query .= " WHERE r.route_id = '" . $route_id . "' ";
+
         }
     } 
     //associate the tables to each other
     $query .= 
 " AND t.trip_id = st.trip_id 
-AND s.stop_id = st.stop_id 
-AND r.route_id = t.route_id " . 
+AND s.stop_id = st.stop_id " .
+//AND r.route_id = t.route_id " . 
 $sql_time_parameters . // what times should we display?  
 $service_id_param;		// what service id
+
     $query .= 
     " ORDER BY s.stop_desc,s.stop_id,st.arrival_time ";
 #    " ORDER BY t.service_id,st.arrival_time ";
@@ -133,8 +171,12 @@ $service_id_param;		// what service id
     // these can get kinda lengthy if you don't limit them, let's only pull a few hundred 
         // of them
 //    $query .= " LIMIT 0,2000 "; 
+//print ("QUERY <pre>" . $query . "</pre><br/>\n");
+echo ("DEBUG = " . $DEBUG);
+ if($DEBUG) {    show_query($query); }
 
-    show_query($query);
+
+
 
     //run it
     $result = mysqli_query($link,$query) 
