@@ -63,23 +63,26 @@ include_once ('dbconnect.php');
 
 
 
-if (isset($_GET['s'])) {
+if (isset($_GET['service'])) {
+    $service_id = $_GET['service']; 
+}
+
+if (isset($_GET['stop'])) {
     $service_id = $_GET['s']; 
 }
 
-if (isset($_GET['dt'])) {
-    $departure_time = $_GET['dt']; 
+
+if (isset($_GET['departure'])) {
+    $departure_time = $_GET['departure']; 
 }
 
-if (isset($_GET['r'])) {
-    $route_id = $_GET['r']; 
+if (isset($_GET['route'])) {
+    $route_id = $_GET['route']; 
 }
 
-
-if (isset($_GET['t'])) {
-    $trip_id = $_GET['t']; 
+if (isset($_GET['trip'])) {
+    $trip_id = $_GET['trip']; 
 }
-echo ("ROUTID" . $route_id);
 
 
 //DEPARTURE TIME
@@ -118,7 +121,7 @@ if (isset ($departure_time)) {
     //ROUTE ID
     // here we set $route_id
     if (!isset ($route_id) ) {
-        $route_id_param = "BOLT";
+        $route_id = "BOLT";
     } 
 
 
@@ -140,31 +143,34 @@ s.stop_lon as stop_lon,
 t.service_id as service_id,  
 t.trip_headsign as trip_headsign,
 t.trip_id as trip_id,
+t.service_id as service_id,
 st.stop_sequence as stop_sequence,
 st.arrival_time as arrival_time,
 st.departure_time as departure_time 
  FROM trips t, stop_times st, routes r, stops s \n";
 
 //print ("QUERY <pre>" . $query . "</pre><br/>\n") if $DEBUG;
-
-    if (isset ($_GET["trip_id"])) {
-        $query .= " WHERE t.trip_id = '" . $_GET["trip_id"] . "' ";
+    // if trip and rouite are giiven, give precedence to the trip id 
+    if (isset ($trip_id)) {
+        $query .= " WHERE t.trip_id = '" . $trip_id . "' ";
     } else { 
         if (isset ($route_id)) {
             $query .= " WHERE r.route_id = '" . $route_id . "' ";
 
         }
     } 
+
     //associate the tables to each other
     $query .= 
 " AND t.trip_id = st.trip_id 
 AND s.stop_id = st.stop_id " .
-//AND r.route_id = t.route_id " . 
+" AND r.route_id = t.route_id " . 
 $sql_time_parameters . // what times should we display?  
 $service_id_param;		// what service id
 
     $query .= 
-    " ORDER BY s.stop_desc,s.stop_id,st.arrival_time ";
+    " ORDER BY t.trip_id,st.arrival_time ";
+#    " ORDER BY st.stop_sequence,st.arrival_time ";
 #    " ORDER BY t.service_id,st.arrival_time ";
 #    " ORDER BY st.stop_sequence,st.arrival_time ";
 
@@ -172,7 +178,6 @@ $service_id_param;		// what service id
         // of them
 //    $query .= " LIMIT 0,2000 "; 
 //print ("QUERY <pre>" . $query . "</pre><br/>\n");
-echo ("DEBUG = " . $DEBUG);
  if($DEBUG) {    show_query($query); }
 
 
@@ -278,7 +283,7 @@ printf(
 ?></a></td><td><?php 
     echo $line["stop_desc"];
 
-    if (!isset ($_GET["trip_id"])) {
+    if (!isset ($trip_id)) {
         printf(
 "<br/><a href='trips.php?trip_id=%s'>view this trip</a><br/>", 
             $line["trip_id"]); 
