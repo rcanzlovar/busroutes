@@ -40,7 +40,7 @@ CREATE TABLE `calendar` (
 DROP TABLE IF EXISTS calendar_dates;
 
 CREATE TABLE `calendar_dates` (
-    service_id INT(11),
+    service_id VARCHAR(2),
     `date` VARCHAR(8),
     exception_type INT(2),
     KEY `service_id` (service_id),
@@ -87,8 +87,8 @@ CREATE TABLE `stops` (
   stop_code char(12) DEFAULT NULL,
   stop_name varchar(255) DEFAULT NULL,
   stop_desc varchar(255) NOT NULL,
-  stop_lat DECIMAL(8,6),
-  stop_lon DECIMAL(8,6),
+  stop_lat DECIMAL(9,6),
+  stop_lon DECIMAL(9,6),
   zone_id int(11) NOT NULL,
   stop_url varchar(255) NOT NULL,
   location_type int(2) NOT NULL,
@@ -105,7 +105,7 @@ DROP TABLE IF EXISTS trips;
 
 CREATE TABLE `trips` (
     route_id varchar(8),
-	service_id INT(11),
+    service_id VARCHAR(2),
 	trip_id INT(11) PRIMARY KEY,
 	trip_headsign VARCHAR(255),
 	direction_id TINYINT(1),
