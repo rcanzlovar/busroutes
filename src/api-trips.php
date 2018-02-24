@@ -1,9 +1,9 @@
 <?php
-//get-trips.php
+//api-trips.php
 
-$DEBUG = 1; 
-echo ("DEBUG = " . $DEBUG);
 
+
+// 20180223 changed this to api-trips and made it generate JSON 
 // 20160721 rca changed msql_connect to mysqli_connect and mysqli_close
 // 20160722 rca named get-routes.php and made the sql more restrictive
 // 20160722 rca named get-trips.php
@@ -49,9 +49,8 @@ echo ("DEBUG = " . $DEBUG);
 // stop_url      | varchar(200) | NO   |     | NULL
 // location_type | int(2)       | NO   |     | NULL
 
-
+$DEBUG = 0; 
 include_once ("funcs.php");
-
 include_once ('dbconnect.php');
 //require "getlogs.php";
 //logit($link);
@@ -188,140 +187,17 @@ $service_id_param;		// what service id
         or die('Query failed: ' . mysqli_error($link));
 
 
-    if (isset ($_GET["trip_id"])) {
-        echo "<a href='get-routes.php'>Show All Routes</a><br/>";
-	    if (isset($_GET["departure_time"]) && $_GET["departure_time"] == "all") {
-            echo "<a href='trips.php?trip_id=" . $_GET["trip_id"] . "'>Show upcoming trips</a><br/>";
-	    } else {
-            echo "<a href='trips.php'>Show All trips (meaningless)</a><br/>";
-	    }
-
-	    // Toggle what time parameters are in play
-	    if (isset ($_GET["departure_time"]) && $_GET["departure_time"] == "all") {
-           
-            printf(
-			 "<a href='get-buses.php?&stop_id=%s'>Show upconing buses at this stop</a><br/>",
-			 $_GET["stop_id"]		 
-			 );
-	    } else {
-	            
-            printf(
-			 "<a href='get-buses.php?departure_time=all&stop_id=%s'>Show All Buses at a stop %s</a><br/>",
-			 $_GET["stop_id"],		 
-			 $_GET["stop_id"]		 
-			 );
-			
-		}
-    } 
-
-# initialize before the first record, but don't print header until you've pulled the first 
-# record. 
-$head_printed = 0; 
-
 //#################### start output here ###########################
-while ($line = mysqli_fetch_array($result, MYSQLI_ASSOC)) {
-    if (!$head_printed) {  
-
-echo "<tr><td colspan=12><h3>"; 
-printf(
-"<!--// start colorcoded route block -->
-<div style='color:#%s;background-color:%s;'>%s</div>
-<!-- // end colorcoded route block -->",
-    $line["route_text_color"], 
-    $line["route_color"], 
-    $line["route_short_name"]);
-    if (isset($_GET["departure_time"]) && $_GET["departure_time"] == "all") {
-	    printf(
-"%s - (%s)</h3><br/>
-<a href='trips.php?departure_time=all&service_id=%s&route_id=%s'>All trips for %s</a><br/>",
-            $line["route_long_name"], 
-            $line["trip_headsign"],
-            $line["service_id"], 
-            $line["route_id"],
-            $line["route_id"]);
-	} else if (isset($_GET["departure_time"])) {
-	    printf(
-"%s - (%s)</h3><br/>
-<a href='trips.php?departure_time=all&service_id=%s&route_id=%s'>All trips for %s</a><br/>",
-            $line["route_long_name"], 
-            $line["trip_headsign"],
-            $line["service_id"], 
-            $line["route_id"],
-            $line["route_id"]);
-	} else {
-	    printf(
-"%s - (%s)</h3><br/>
-<a href='trips.php?departure_time=all&service_id=%s&route_id=%s'>All trips for %s</a><br/>",
-            $line["route_long_name"], 
-            $line["trip_headsign"],
-            $line["service_id"], 
-            $line["route_id"],
-            $line["route_id"]);
-    }
-?></td>
-<?php
-        // start the table for the rest of the output now that we've 
-        //  printed the header
-        echo "<table>\n";
-
-        $head_printed = 1; 
-    } 
-
-    if (isset ($_GET["trip_id"]) || $line["stop_sequence"] == 1) {
-?><tr><td colspan=6>
-      <div class="table_of_contents_item floating_element">
-        <span class="floating_element">
-<a href='http://maps.google.com/maps?z=12&t=m&q=loc:<?php echo $line["stop_lat"]; ?>+<?php echo $line["stop_lon"]; ?>'><img src="img/map.png" border=0 alt="Google Map"></a> 
-<?php
-    echo $line["stop_sequence"]; 
-?> <?php
-    echo $line["service_id"] ; 
-?><a href="get-buses.php?stop_id=<?php
-    echo $line["stop_id"];
-?>"><?php
-    echo $line["stop_name"];
-?></a></td><td><?php 
-    echo $line["stop_desc"];
-
-    if (!isset ($trip_id)) {
-        printf(
-"<br/><a href='trips.php?trip_id=%s'>view this trip</a><br/>", 
-            $line["trip_id"]); 
-    }
-
-    echo "</span></div></td><td>";
-    echo $line["arrival_time"]  . " ";
-    echo "</td><td>";
-    echo $line["departure_time"]  . " ";
-    echo "</td>";
-?>
+$trip_array = array();
 
 
-   <td>
-
-
-
-<?php
-// z is the zoom level (1-20)
-// t is the map type ("m" map, "k" satellite, "h" hybrid, "p" terrain, "e" GoogleEarth)
-// q is the search query, if it is prefixed by loc: then google assumes it is a lat lon separated by a +
-
-
-    echo "\t</tr>\n";
-  
-  } // if isset stop_sequence
-//###############################
-//        if ($DEBUG) {
-//            echo "\t<tr>\n";
-//            echo "\t\t<td>$line</td>\n";
-            foreach ($line as $col_value) {
-                echo "\t\t<td>$col_value</td>\n";
-            }
-            echo "\t</tr>\n";
- //       }  // if ($DEBUG) 
-//###############################
-
+while ($line = mysqli_fetch_assoc($result)) {
+    $trip_array[] = $line;
 }
-echo "</table>\n";
+echo json_encode($trip_array);
+
+exit;
+
+
 
 ?>
