@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+	  <meta charset="utf-8">
+	  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	  <meta name="description" content="Cryptocurrency Mining Pool built on dedicated gigabit infrastructure.">
+	  <meta name="author" content="Hydra Technologies LLC.">
+	  <meta name="robots" content="index,follow">
+	  <meta name="keywords" content="stratum pool,coin mining,multipool,crypto mining">
+	  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+	  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+	  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+	  <link rel="manifest" href="/manifest.json">
+	  <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+	  <meta name="theme-color" content="#ffffff">
+
+    <title>GetMining.net</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="js/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="css/dashboard.css" rel="stylesheet">
+	  <!-- Custom styles for this template -->
+    <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+	  <script src="js/funcs.js"></script>
+	  
+	  
+  </head>
+
+  <body>
+    <nav class="navbar navbar-toggleable-md navbar-inverse fixed-top bg-inverse">
+      <button class="navbar-toggler navbar-toggler-right hidden-lg-up" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+		<img class="navbar-brand" src="img/logos/gmban.png">
+      <!-- <a class="navbar-brand" href="#">GetMining.Net</a> -->
+
+      <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item active">
+            <a class="nav-link" href="index.html">Home<span class="sr-only">(current)</span></a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#" onClick="showFAQ()">FAQ</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#" onClick="showPayouts()">Payouts</a>
+          </li>
+		  <li class="nav-item">
+            <a class="nav-link" href="/cdn-cgi/l/email-protection#80e7e5f4ede9eee9eee7f3f5f0f0eff2f4c0f0f2eff4efeeede1e9ecaee3efed" onClick="">Support</a>
+          </li>
+		  <li class="nav-item">
+            <a class="nav-link" href="#" onClick="showAboutPage()">About</a>
+          </li>
+        </ul>
+        <form class="form-inline mt-2 mt-md-0">
+          <input class="form-control mr-sm-2" type="text" placeholder="Wallet ID..." value="" id="walletString">
+          <button class="btn btn-outline-success my-2 my-sm-0" id="WalletSearchBtn" type="submit">Search Wallets</button>
+        </form>-
+		  <script data-cfasync="false" src="/cdn-cgi/scripts/d07b1474/cloudflare-static/email-decode.min.js"></script><script>WalletSearchBtn.addEventListener('click', searchWallet, false);</script>
+		  <form class="form-inline mt-2 mt-md-0">
+ <div class="dropdown">
+  <button class="btn btn-outline-success" type="button" data-toggle="dropdown" onclick="loadPools()">Pool ID<span class="caret"></span></button>
+  <ul class="dropdown-menu" id="CurrentID">
+  </ul>
+</div>
+		  </form>
+      </div>
+    </nav>
+
+    <div class="container-fluid">
+      <div class="row">
+         <nav class="col-sm-3 col-md-2 hidden-xs-down bg-faded sidebar">
+          <ul class="nav nav-pills flex-column" id="global">ok eh
+			  <script src="js/global.js"></script>
+          </ul>
+
+          <!--<ul class="nav nav-pills flex-column">
+             <li class="nav-item">
+              <a class="nav-link" href="#">Nav item</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Nav item again</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">One more nav</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Another nav item</a>
+            </li> 
+          </ul>-->
+
+          <!--<ul class="nav nav-pills flex-column">
+            <li class="nav-item">
+              <a class="nav-link" href="#">Nav item again</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">One more nav</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Another nav item</a>
+            </li> 
+          </ul>-->
+        </nav>o boy 
+      
+        <main class="col-sm-9 offset-sm-3 col-md-10 offset-md-2 pt-3" id="main">
+			<!--<h1>Latest News:</h1>-->
+			<section class="text-center placeholders"><h1>main sectio1</h1></section><section class="text-center">
+        <script> apitrips();</script></section>
+		  </main>
+
+  <main class="col-sm-9 offset-sm-3 col-md-10 offset-md-2 pt-3" id="xmain">
+      <!--<h1>Latest News:</h1>-->
+<!--<script>GeneralPoolStats();</script>-->
+      <section class="text-center placeholders"><h1>xmain</h1></section><section class="text-center"><script>newsPageStats($(this.element).prop("id"));</script></section>
+      </main>
+
+
+
+
+
+
+		  <main class="col-sm-9 offset-sm-3 col-md-10 offset-md-2 pt-3" id="notmain">
+		  <section class="text-center placeholders"><h3>Latest News:</h3></section>
+		  <section class="text-center"><a class="twitter-timeline justify-content-center" data-width="800" data-height="400" data-dnt="true" data-theme="dark" data-link-color="#02c118" data-chrome="noscrollbar noborders noheader nofooter" href="https://twitter.com/GetMiningNet?ref_src=twsrc%5Etfw"></a></section>
+		  </main>
+		  <main class="col-sm-9 offset-sm-3 col-md-10 offset-md-2 pt-2">
+			  <footer class="align-items-md-center"><div class="text-center"></br></br></br></br></br></br><img src="img/logos/hydra-sm.png" height="35" width="35"></div></footer>
+        </main>
+      </div>
+    </div>
+	  
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n" crossorigin="anonymous"></script>
+    <script>window.jQuery || document.write('<script src="assets/js/vendor/jquery.min.js"><\/script>')</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
+    <script src="dist/js/bootstrap.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="assets/js/ie10-viewport-bug-workaround.js"></script>
+  </body>
+</html>
