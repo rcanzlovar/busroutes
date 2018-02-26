@@ -17,6 +17,8 @@ function apitrips()
 
 		var z; 
 
+		var h;  //headers
+
         //count how many times it changes
 		var props = {};
 
@@ -25,7 +27,33 @@ function apitrips()
 		var i, j = '';
 //		var myArr = myObj.pools;
 		x = "<ul>";
+		var _tripId = '';
+		var _arrival_time_end = '';
+		var _arrival_time_begin = '';
+		var _route_id = '';
 		for (i in myObj) {
+			if (_tripId != myObj[i].trip_id) {
+				// get the last one, or blank
+				_arrival_time_end = props["arrival_time"] || '';
+				_route_short_name = props["route_short_name"] || '';
+				_route_long_name = props["route_long_name"] || '';
+				_route_id = props["route_id"] || '';
+
+				z += "<h3>" + _route_id + "</h3>";
+				z += "<h4>" + _route_long_name	 + "</h4>";
+				z += _arrival_time_begin	+ " - " + _arrival_time_end;
+				z += "trips.php?trip=" + _tripId	;
+			    //alert(h);
+			    // Now that we've taken care of the last trip, set up for the next
+
+
+
+
+        //        printf("%s %s ",_route_id, _tripid);
+				_tripId = myObj[i].trip_id;
+				_arrival_time_begin = myObj[i].arrival_time;
+
+			}
 
   			console.log(myObj[i].trip_id);
 			x += '<li>' + myObj[i].trip_id + ' ' + myObj[i].stop_name;
@@ -34,19 +62,15 @@ function apitrips()
 			locObj = myObj[i];		
 			console.log(locObj);
   			for(var prop in locObj) {
-  				console.log ("prop "+prop);
-  				console.log (props[prop]);
-  				console.log (locObj[prop]);
   				if (!(prop in props)) {
   					props[prop] = locObj[prop];
   				} else if ( props[prop] != locObj[prop]) {
   					props[prop] = '';
   				}
-			    if(myObj.hasOwnProperty(prop))
-        			x += '<div>' + myObj[prop] + "</div>";
 			}
 		}//["0"].trip_id
-		console.log(props);
+		x += "</ul>"
+	
 
 		// now let's get the things that didn't change at all 
 		y = '<ul>';
@@ -56,13 +80,32 @@ function apitrips()
 			}
 		}
 		y += '</ul>';
-		z += y + '<ul>' + x + '</ul>'; 
 	
 		document.getElementById("main1").innerHTML = x;
-		document.getElementById("main2").innerHTML = y;
+		document.getElementById("main2").innerHTML = z;
 	}
 }
 xmlhttp.open("GET", API, true);
 xmlhttp.send();
 }
 	//
+
+
+
+function getlocation () {
+	if (navigator.geolocation) {
+	  navigator.geolocation.getCurrentPosition(
+	          function(position) {
+	            /* Geocoding based on latitude and longitude */
+	            // do stuff
+	            document.write(position);
+	            console.log(position);
+	          },
+	          function(error) {
+	            document.write(error);
+	          },{ timeout: 30000, enableHighAccuracy:false}
+	  );
+	} else {
+	  document.write('Location permission denied');
+	}
+}
