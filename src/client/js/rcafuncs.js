@@ -2,6 +2,10 @@
 var API = 'http://192.168.23.18/rtd-routes/api-trips.php?route=BOLT';
 
 
+API = 'http://192.168.20.101/rtd-routes/api-trips.php?route=BOLT';
+
+
+
 
 
 function apitrips()
@@ -92,7 +96,7 @@ xmlhttp.send();
 
 
 
-function getlocation () {
+function get_location () {
 	if (navigator.geolocation) {
 	  navigator.geolocation.getCurrentPosition(
 	          function(position) {
