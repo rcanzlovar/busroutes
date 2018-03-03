@@ -102,10 +102,11 @@ function get_location () {
 	          function(position) {
 	            /* Geocoding based on latitude and longitude */
 	            // do stuff
-	            document.write(position);
 	            console.log(position);
+	            document.write(position);
 	          },
 	          function(error) {
+	            console.log(error);
 	            document.write(error);
 	          },{ timeout: 30000, enableHighAccuracy:false}
 	  );
