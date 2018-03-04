@@ -82,8 +82,9 @@ if (isset($_GET['route'])) {
 if (isset($_GET['trip'])) {
     $trip_id = $_GET['trip']; 
 }
-
-
+if (isset($_GET['DEBUG'])) {
+    $DEBUG = $_GET['DEBUG']; 
+}
 //DEPARTURE TIME
 // here we set $time parameters, if needed
 // 23feb18 rca
@@ -108,6 +109,24 @@ if (isset ($departure_time)) {
     }
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// if hothing else, then we will do trip listing for BOLT until i can come up with a good way to handle no default infromation (allpw people start with one of sevral sites, maybe? 
+
+)
     //SERVICE ID
     // here we set $service_id_param
     if (isset ($service_id)) {
@@ -168,7 +187,7 @@ $sql_time_parameters . // what times should we display?
 $service_id_param;		// what service id
 
     $query .= 
-    " ORDER BY t.trip_id,st.arrival_time ";
+    " ORDER BY t.trip_id,st.stop_sequence";
 #    " ORDER BY st.stop_sequence,st.arrival_time ";
 #    " ORDER BY t.service_id,st.arrival_time ";
 #    " ORDER BY st.stop_sequence,st.arrival_time ";
