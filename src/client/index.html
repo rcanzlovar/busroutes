@@ -34,22 +34,28 @@
         <p class="lead">
       While you don't have to tell us where you are, we can better determine what maps are relevant to you.
       </p>
+
+
+        <p><a class="btn btn-lg btn-secondary" href="#" role="button" onclick="apitrips({route:'BOLT'});">BOLT Object</a></p>
+        <p><a class="btn btn-lg btn-secondary" href="#" role="button" onclick="apitrips(['LD-1','LD-2','lx-1,','lx-2']);">LD/LX array</a></p>
+        <p><a class="btn btn-lg btn-success" href="#" role="button" onclick="apitrips('0');alert('help');">0 string</a></p>
+        <p><a class="btn btn-lg btn-success" href="#" role="button" onclick="apitrips('0');alert(typeof ['help']);">demo typeof </a></p>
+        <p><a class="btn btn-lg btn-info" href="#" role="button" onclick="apitrips();">Default</a></p>
+
+<!-- 
         <p><a class="btn btn-lg btn-primary" href="#" role="button" onclick="get_location();">Tell Us Where You Are</a></p>
-        <p><a class="btn btn-lg btn-secondary" href="#" role="button" onclick="apitrips({route:'BOLT'});">BOLT</a></p>
-        <p><a class="btn btn-lg btn-success" href="#" role="button" onclick="apitrips('0');">0</a></p>
-        <p><a class="btn btn-lg btn-info" href="#" role="button" onclick="apitrips();">info</a></p>
+        <p><a class="btn btn-lg btn-success" href="#" role="button" onclick="apitrips();">Green</a></p>
+        <p><a class="btn btn-lg btn-info" href="#" role="button" onclick="apitrips();">teal?</a></p>
         <p><a class="btn btn-lg btn-warning" href="#" role="button" onclick="apitrips();">warning</a></p>
-        <p><a class="btn btn-lg btn-danger" href="#" role="button" onclick="apitrips();">danger</a></p>
+        <p><a class="btn btn-lg btn-danger" href="#" role="button" onclick="apitrips();">red</a></p>
         <p><a class="btn btn-lg btn-light" href="#" role="button" onclick="apitrips();">light</a></p>
         <p><a class="btn btn-lg btn-dark" href="#" role="button" onclick="apitrips();">dark</a></p>
-        <p><a class="btn btn-lg btn-outline" href="#" role="button" onclick="apitrips();">outline</a></p>
-        <p><a class="btn btn-lg btn-primary" href="#" role="button" onclick="apitrips();">primary</a></p>
-        <p><a class="btn btn-lg btn-secondary" href="#" role="button" onclick="apitrips();">secondary</a></p>
-        <p><a class="btn btn-lg btn-success" href="#" role="button" onclick="apitrips();">success</a></p>
-        info warning  danger light  dark outline 
-        
+        <p><a class="btn btn-lg btn-outline" href="#" role="button" onclick="apitrips();">transparent?</a></p>
+        <p><a class="btn btn-lg btn-primary" href="#" role="button" onclick="apitrips();">blue</a></p>
+        <p><a class="btn btn-lg btn-secondary" href="#" role="button" onclick="apitrips();">gray</a></p>
 
-      </div>
+
+ -->      </div>
 
       <div class="row marketing">
         <div class="col-lg-6" id="main1">
@@ -57,15 +63,17 @@
           <p>Bus systems have come up with a common format called GTFS that makes it easy to desciebe an entire transportation 
           systen, including mapping, in a series of text files. CSV files, to be exact.  </p>
 
-          <h4>who is Bob?</h4>
-          <p>Bob is the programmer and designer of this little app. He's done a couple of other versions in PHP, uut this is 
-          sort of serving as my proof of concept Javascript project.</p>
+          <h4>Who is Bob?</h4>
+          <p>Bob Anzlovar (rcanzlovar at gmail) is the programmer and designer of this little app. He's done a couple 
+            of other versions in PHP. This is 
+          showing that I can build a full stack Javascript project. Please contact me if you are interested in hiring me. </p>
 
         </div>
 
         <div class="col-lg-6" id="main2">
-
-          <p>Maecenas sed diam eget risus varius blandit sit amet non magna.</p>
+          <a href="http://rcanzlovar.com/">
+          <img src="http://rcanzlovar.com/wp-content/uploads/2012/05/20120520-012031.jpg" alt="Praise Bob!">
+          </a>
         </div>
       </div>
 
