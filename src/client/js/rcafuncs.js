@@ -5,7 +5,7 @@ var BASEAPI = 'http://192.168.23.18/rtd-routes/api-trips.php';
 BASEAPI = 'http://192.168.20.101/rtd-routes/api-trips.php';
 var API = '';
 
-function apitrips(arrayin) {
+function proc_params(arrayin) {
 //	alert ('type: ' + typeof arrayin);
 //	alert ('array test  ' + Array.isArray(arrayin));
 //	console.log ('arrayin type: ' + typeof arrayin);
@@ -43,8 +43,9 @@ function apitrips(arrayin) {
 	// eles its a route  - might be able to check if a route with a call 
 }
 
-function after_apitrips(arrayin)
+function apitrips(arrayin)
 {
+	proc_params(arrayin);
 	var xmlhttp = new XMLHttpRequest();
 	xmlhttp.onreadystatechange = function() {
 	if (this.readyState == 4 && this.status == 200) {
@@ -71,12 +72,16 @@ function after_apitrips(arrayin)
 			    _route_short_name = locObj["route_short_name"] || '';
 			    _route_long_name = locObj["route_long_name"] || '';
 			    _route_id = locObj["route_id"] || '';
-			    z += "<span class='route_name'>" + _route_id + "</span>";
-			    z += "<span class='route_dest'>" + _route_long_name	 + "</span>";
+			    _arrival_time_begin = locObj["arrival_time"] || '';
+			    z += "<li><span class='route_name' a" + 
+			        " style=\"color:#" + locObj.route_text_color + 
+			        ";background-color:#" + locObj.route_color + ";\">" +
+			        _route_id + " - ";
+			    z +=  _route_long_name	 + "</span>";	
 
 				// get the last one, or blank
 				z += _arrival_time_begin	+ " - " + _arrival_time_end;
-				z += "<a href=\"?trip=" + _tripId + "\">detail</a>";
+				z += "<a href=\"?trip=" + _tripId + "\">detail</a></li>";
 
 
 //set up for the last iteration of this
@@ -96,24 +101,12 @@ function after_apitrips(arrayin)
 
 			// stash the values of this locObj into props so we have the last record 
 			// needed for getting the last arrival time in a trip before starting the next one
-  			for(var prop in locObj) {
-  				props[prop] = locObj[prop];
-			}
+//  			for(var prop in locObj) {
+//  				props[prop] = locObj[prop];
+//			}
 		}//["0"].trip_id
 		x += "</ul>"
 	
-
-
-
-		// y is for debugging purposes, shows the whole thing 
-		y += '<ul>';
-		for (var prop in props) {
-			if (props[prop] != '') {
-				y += '<li>' + prop + " " + props[prop] + '</li>';
-			}
-		}
-		y += '</ul>';
-		
 	
 		document.getElementById("main1").innerHTML = z;
 		document.getElementById("main2").innerHTML = x;
