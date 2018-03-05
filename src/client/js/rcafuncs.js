@@ -1,43 +1,43 @@
 // Main Site Funcs
-var API = 'http://192.168.23.18/rtd-routes/api-trips.php';
+//IP address at home 
+var BASEAPI = 'http://192.168.23.18/rtd-routes/api-trips.php';
+//ip address at work
+BASEAPI = 'http://192.168.20.101/rtd-routes/api-trips.php';
+var API = '';
 
+function apitrips(arrayin) {
+//	alert ('type: ' + typeof arrayin);
+//	alert ('array test  ' + Array.isArray(arrayin));
+//	console.log ('arrayin type: ' + typeof arrayin);
+//
+// we can take in a scalar, an array or an object
+//
+	var route_list1 = '';
+	var route_list2 = '';
+	var route_id = '';
 
-//API = 'http://192.168.20.101/rtd-routes/api-trips.php';
-
-
-
-
-function apitrips(arrayin)
-{
-	var API = 'http://192.168.23.18/rtd-routes/api-trips.php';
-	alert ('type: ' + typeof arrayin);
-	alert ('ting? ');
-	console.log ('arrayin type: ' + typeof arrayin);
-	if (typeof arrayin == 'undefined' ) { //()
-		var route_id = "BOLT";
-		API += "?route=" + route_id;
-	} else if (typeof arrayin == 'string') { //("thing")
-		var route_id=arrayin.route
-		API += "?route=" + route_id;
-	} else if ( typeof arrayin.route == 'array') { //({thing:"val"})
-	    alert("got an array");
-	    var route_list1 = ''; 
-	    var route_list2 = ''; 
-	    var thing;
+	if ( Array.isArray(arrayin)) { //(["thing1","thing2"])
 	    for (i = 0;i < arrayin.length; i++) {
 	    	route_list1 += arrayin[i] + ",";
 	    	route_list2 += "\"" + arrayin[i] + "\",";
 	    }
-	    //substitute out trailing comma
+	    //remove  trailing comma
         route_list1 = route_list1.replace(/,\s*$/, "");
         route_list2 = route_list2.replace(/,\s*$/, "");
-	    API += "?rlist=" . route_list1;
-	    alert("got an array" + API);
-	} else if ( typeof arrayin.route == 'object') { //({thing:"val"})
-	    alert("got an object");
-		var route_id=arrayin.route
-		API += "?route=" + route_id;
-	}	
+	    API = BASEAPI  + "?route_list=" + route_list1;
+	} else if (typeof arrayin == 'string') { //("thing")
+		route_id=arrayin
+		API = BASEAPI  + "?route=" + route_id;
+	} else if ( typeof arrayin == 'object' && arrayin.route !== '') { //({route:"val"})
+		route_id=arrayin.route
+		API = BASEAPI  + "?route=" + route_id;
+	} else 	if (typeof arrayin == 'undefined' ) { //()
+		// cuz iu'm too lazy to handle proper null logic right now. 
+		// planning that when i have prior history, i'' fill from that 
+		route_id = "BOLT";
+		API = BASEAPI + "?route=" + route_id;
+	}
+	alert("API AFTER " + API)
 	//  we can get slick here if we want - if it's all numeric and a certain length
 	// then we can assume its a trip
 	// eles its a route  - might be able to check if a route with a call 
@@ -45,7 +45,6 @@ function apitrips(arrayin)
 
 function after_apitrips(arrayin)
 {
-
 	var xmlhttp = new XMLHttpRequest();
 	xmlhttp.onreadystatechange = function() {
 	if (this.readyState == 4 && this.status == 200) {
@@ -90,7 +89,7 @@ function after_apitrips(arrayin)
 		// now let's get the things that didn't change at all 
 		//
   			console.log(locObj.trip_id);
-			x += '<li>' + locObj.trip_id + ' ' + myObj[i].stop_name;
+			x += '<li>' + locObj.trip_id + ' ' + locObj.stop_name;
 			x += '<br>'
 			x += '</li>';
 			console.log(locObj);
