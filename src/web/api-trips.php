@@ -2,53 +2,15 @@
 //api-trips.php
 
 
+// 20180305 adding in ability to pass a list of routes like ld-1,ld-2,lx-1,lx-2
 
 // 20180223 changed this to api-trips and made it generate JSON 
 // 20160721 rca changed msql_connect to mysqli_connect and mysqli_close
 // 20160722 rca named get-routes.php and made the sql more restrictive
 // 20160722 rca named get-trips.php
+//interesting field definition stoff at the the botton 
 // 
-// fields in trips
-// route_id      | varchar(6) j| YES  |     | NULL
-// service_id    | varchar(3)  | YES  |     | NULL
-// trip_id       | int(3)      | YES  | MUL | NULL
-// shape_id      | int(5)      | YES  |     | NULL
-// block_id      | varchar(6)  | YES  |     | NULL
-// trip_headsign | varchar(40) | NO   |     | NULL
-// direction_id  | int(11)     | NO   |     | NULL
-//
-// fields in routes:
-// route_id         | varchar(8)   | NO   | PRI | 0
-// route_short_name | varchar(25)  | YES  |     | NULL
-// route_long_name  | varchar(150) | YES  | MUL | NULL
-// route_type       | int(2)       | YES  |     | NULL
-// route_desc       | varchar(40)  | NO   |     | NULL
-// route_url        | varchar(120) | NO   |     | NULL
-// route_color      | varchar(6)   | NO   |     | NULL
-// route_text_color j
-//
-//rields for stop_times
-// trip_id             | int(6)      | YES  |     | NULL
-// arrival_time        | time        | YES  |     | NULL
-// departure_time      | time        | YES  |     | NULL
-// stop_id             | int(5)      | YES  | MUL | NULL
-// stop_sequence       | int(3)      | YES  |     | NULL
-// stop_headsign       | varchar(50) | NO   |     | NULL
-// pickup_type         | int(11)     | NO   |     | NULL
-// drop_off_type       | int(11)     | NO   |     | NULL
-// shape_dist_traveled | int(11)     | NO   |     | NULL
-//
-//FIelds for stops
-// stop_id       | int(5)       | NO   | PRI | 0
-// stop_code     | char(4)      | YES  |     | NULL
-// stop_name     | varchar(200) | YES  | MUL | NULL
-// stop_lon      | double       | YES  | MUL | NULL
-// stop_lat      | double       | YES  | MUL | NULL
-// stop_desc     | varchar(200) | NO   |     | NULL
-// zone_id       | int(2)       | NO   |     | NULL
-// stop_url      | varchar(200) | NO   |     | NULL
-// location_type | int(2)       | NO   |     | NULL
-
+#####
 $DEBUG = 0; 
 include_once ("funcs.php");
 include_once ('dbconnect.php');
@@ -139,8 +101,13 @@ if (isset ($departure_time)) {
     //ROUTE ID
     // here we set $route_id
     if (!isset ($route_id) ) {
+        // check if its a comma separated list of routes, set up the route selection criteria\
+        // accordingly, blank otherwise .. `
+        alert( explode( ',', $route_id ).length ));
+        if ( explode( ',', $input2 ).length )
         $route_id = "BOLT";
-    } 
+    }  
+//     http://192.168.23.18/rtd-routes/api-trips.php?route=LD-1,LD-2,lx-1,lx-2
 
 
 
@@ -217,6 +184,45 @@ echo json_encode($trip_array);
 
 exit;
 
-
-
+// fields in TRIPS
+// route_id      | varchar(6) j| YES  |     | NULL
+// service_id    | varchar(3)  | YES  |     | NULL
+// trip_id       | int(3)      | YES  | MUL | NULL
+// shape_id      | int(5)      | YES  |     | NULL
+// block_id      | varchar(6)  | YES  |     | NULL
+// trip_headsign | varchar(40) | NO   |     | NULL
+// direction_id  | int(11)     | NO   |     | NULL
+//
+// fields in ROUTES:
+// route_id         | varchar(8)   | NO   | PRI | 0
+// route_short_name | varchar(25)  | YES  |     | NULL
+// route_long_name  | varchar(150) | YES  | MUL | NULL
+// route_type       | int(2)       | YES  |     | NULL
+// route_desc       | varchar(40)  | NO   |     | NULL
+// route_url        | varchar(120) | NO   |     | NULL
+// route_color      | varchar(6)   | NO   |     | NULL
+// route_text_color j
+//
+//rields for STOP_TIMES
+// trip_id             | int(6)      | YES  |     | NULL
+// arrival_time        | time        | YES  |     | NULL
+// departure_time      | time        | YES  |     | NULL
+// stop_id             | int(5)      | YES  | MUL | NULL
+// stop_sequence       | int(3)      | YES  |     | NULL
+// stop_headsign       | varchar(50) | NO   |     | NULL
+// pickup_type         | int(11)     | NO   |     | NULL
+// drop_off_type       | int(11)     | NO   |     | NULL
+// shape_dist_traveled | int(11)     | NO   |     | NULL
+//
+//FIelds for STOPS
+// stop_id       | int(5)       | NO   | PRI | 0
+// stop_code     | char(4)      | YES  |     | NULL
+// stop_name     | varchar(200) | YES  | MUL | NULL
+// stop_lon      | double       | YES  | MUL | NULL
+// stop_lat      | double       | YES  | MUL | NULL
+// stop_desc     | varchar(200) | NO   |     | NULL
+// zone_id       | int(2)       | NO   |     | NULL
+// stop_url      | varchar(200) | NO   |     | NULL
+// location_type | int(2)       | NO   |     | NULL
+//
 ?>

@@ -2,7 +2,8 @@
 //IP address at home 
 var BASEAPI = 'http://192.168.23.18/rtd-routes/api-trips.php';
 //ip address at work
-BASEAPI = 'http://192.168.20.101/rtd-routes/api-trips.php';
+// BASEAPI = 'http://192.168.20.101/rtd-routes/api-trips.php';
+
 var API = '';
 
 function proc_params(arrayin) {
@@ -24,7 +25,7 @@ function proc_params(arrayin) {
 	    //remove  trailing comma
         route_list1 = route_list1.replace(/,\s*$/, "");
         route_list2 = route_list2.replace(/,\s*$/, "");
-	    API = BASEAPI  + "?route_list=" + route_list1;
+	    API = BASEAPI  + "?route=" + route_list1;
 	} else if (typeof arrayin == 'string') { //("thing")
 		route_id=arrayin
 		API = BASEAPI  + "?route=" + route_id;
@@ -35,7 +36,8 @@ function proc_params(arrayin) {
 		// cuz iu'm too lazy to handle proper null logic right now. 
 		// planning that when i have prior history, i'' fill from that 
 		route_id = "BOLT";
-		API = BASEAPI + "?route=" + route_id;
+		// API = BASEAPI + "?route=" + route_id;
+		API = BASEAPI;
 	}
 	alert("API AFTER " + API)
 	//  we can get slick here if we want - if it's all numeric and a certain length
@@ -68,7 +70,6 @@ function apitrips(arrayin)
 			locObj = myObj[i];		
 
 			if (_tripId != locObj.trip_id) {
-
 			    _route_short_name = locObj["route_short_name"] || '';
 			    _route_long_name = locObj["route_long_name"] || '';
 			    _route_id = locObj["route_id"] || '';
@@ -81,8 +82,7 @@ function apitrips(arrayin)
 
 				// get the last one, or blank
 				z += _arrival_time_begin	+ " - " + _arrival_time_end;
-				z += "<a href=\"?trip=" + _tripId + "\">detail</a></li>";
-
+				z += "<a class='btn btn-sm btn-info' href='#' role='button' onclick=\"apitrips('trip':\"" +  _tripId    + "'});'>detail</a>";
 
 //set up for the last iteration of this
 				_tripId = locObj.trip_id;
