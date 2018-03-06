@@ -2,7 +2,7 @@
 //IP address at home 
 var BASEAPI = 'http://192.168.23.18/rtd-routes/api-trips.php';
 //ip address at work
-// BASEAPI = 'http://192.168.20.101/rtd-routes/api-trips.php';
+ BASEAPI = 'http://192.168.20.101/rtd-routes/api-trips.php';
 
 var API = '';
 
@@ -29,9 +29,13 @@ function proc_params(arrayin) {
 	} else if (typeof arrayin == 'string') { //("thing")
 		route_id=arrayin
 		API = BASEAPI  + "?route=" + route_id;
-	} else if ( typeof arrayin == 'object' && arrayin.route !== '') { //({route:"val"})
+	} else if ( typeof arrayin == 'object' && typeof arrayin.route == 'string') { //({route:"val"})
+	alert("route?  " + arrayin.route + arrayin.trip);
 		route_id=arrayin.route
 		API = BASEAPI  + "?route=" + route_id;
+	} else if ( typeof arrayin == 'object' && typeof arrayin.trip == 'string') { //({route:"val"})
+		trip_id=arrayin.trip
+		API = BASEAPI  + "?trip=" + trip_id;
 	} else 	if (typeof arrayin == 'undefined' ) { //()
 		// cuz iu'm too lazy to handle proper null logic right now. 
 		// planning that when i have prior history, i'' fill from that 
@@ -39,7 +43,7 @@ function proc_params(arrayin) {
 		// API = BASEAPI + "?route=" + route_id;
 		API = BASEAPI;
 	}
-	alert("API AFTER " + API)
+	alert("API AFTER " + API);
 	//  we can get slick here if we want - if it's all numeric and a certain length
 	// then we can assume its a trip
 	// eles its a route  - might be able to check if a route with a call 
@@ -60,7 +64,7 @@ function apitrips(arrayin)
 
 
 
-		x = "<ul>";
+		z = "<ul>";
 		var _tripId = '';
 		var _arrival_time_end = '';
 		var _arrival_time_begin = '';
@@ -74,7 +78,10 @@ function apitrips(arrayin)
 			    _route_long_name = locObj["route_long_name"] || '';
 			    _route_id = locObj["route_id"] || '';
 			    _arrival_time_begin = locObj["arrival_time"] || '';
-			    z += "<li><span class='route_name' a" + 
+
+
+				z += "<li data-role=\"fieldcontain\" class=\"ui-field-contain ui-last-child\">";
+			    z += "<span class='route_name' a" + 
 			        " style=\"color:#" + locObj.route_text_color + 
 			        ";background-color:#" + locObj.route_color + ";\">" +
 			        _route_id + " - ";
@@ -82,7 +89,7 @@ function apitrips(arrayin)
 
 				// get the last one, or blank
 				z += _arrival_time_begin	+ " - " + _arrival_time_end;
-				z += "<a class='btn btn-sm btn-info' href='#' role='button' onclick=\"apitrips('trip':\"" +  _tripId    + "'});'>detail</a>";
+				z += "<a class='btn btn-sm btn-info' href='#' role='button' onclick=\"apitrips({'trip':'" +  _tripId    + "'});\">detail</a>";
 
 //set up for the last iteration of this
 				_tripId = locObj.trip_id;
@@ -94,9 +101,14 @@ function apitrips(arrayin)
 		// now let's get the things that didn't change at all 
 		//
   			console.log(locObj.trip_id);
-			x += '<li>' + locObj.trip_id + ' ' + locObj.stop_name;
-			x += '<br>'
+
+  			//build the link for the stop
+			x += '<li>'; 
+			x +=  locObj.arrival_time;
+			x += "<a class='btn btn-sm btn-info' href='#' role='button' onclick=\"apistops({'stop':'" +  locObj.stop_id    + "'});\">" 
+			x +=  locObj.stop_name + "</a>";
 			x += '</li>';
+
 			console.log(locObj);
 
 			// stash the values of this locObj into props so we have the last record 
@@ -105,7 +117,7 @@ function apitrips(arrayin)
 //  				props[prop] = locObj[prop];
 //			}
 		}//["0"].trip_id
-		x += "</ul>"
+		z += "</ul>"
 	
 	
 		document.getElementById("main1").innerHTML = z;
