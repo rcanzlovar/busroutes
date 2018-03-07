@@ -1,14 +1,22 @@
-// Main Site Funcs
-//IP address at home 
+// rcafuncs.js - functions for busroutes
+// 
+
+
+
+
 var SERVER_HOST = '192.168.23.18'; //ip address at home
 //    SERVER_HOST = '192.168.20.101'; //ip address at work
 
 var BASEAPI = 'http://' + SERVER_HOST + '/rtd-routes/api-trips.php';
 var API = '';
 
+var route_id = '';
+var trip_id = '';
+var stop_id = '';
+
+///////////////////////////////////////////////////////////
+// parse out parameters
 function proc_params(arrayin) {
-
-
 //	alert ('type: ' + typeof arrayin);
 //	alert ('array test  ' + Array.isArray(arrayin));
 //	console.log ('arrayin type: ' + typeof arrayin);
@@ -17,32 +25,33 @@ function proc_params(arrayin) {
 //
 	var route_list1 = '';
 	var route_list2 = '';
-	var route_id = '';
 
-	if ( Array.isArray(arrayin)) { //(["thing1","thing2"])
+	if ( Array.isArray(arrayin)) { 
+	//(["thing1","thing2"])
 	    for (i = 0;i < arrayin.length; i++) {
-	    	route_list1 += arrayin[i] + ",";
-	    	route_list2 += "\"" + arrayin[i] + "\",";
+	    	route_id += arrayin[i] + ",";
+	    	//route_list1 += arrayin[i] + ",";
+	    	//route_list2 += "\"" + arrayin[i] + "\",";
 	    }
 	    //remove  trailing comma
-        route_list1 = route_list1.replace(/,\s*$/, "");
-        route_list2 = route_list2.replace(/,\s*$/, "");
-	    API = BASEAPI  + "?route=" + route_list1;
-	} else if (typeof arrayin == 'string') { //("thing")
+        route_id = route_id.replace(/,\s*$/, "");
+	    API = BASEAPI  + "?route=" + route_id;
+	} else if (typeof arrayin == 'string') { 
+	//("thing")
 		route_id=arrayin
 		API = BASEAPI  + "?route=" + route_id;
-	} else if ( typeof arrayin == 'object' && typeof arrayin.route == 'string') { //({route:"val"})
-	alert("route?  " + arrayin.route + arrayin.trip);
+	} else if ( typeof arrayin == 'object' && typeof arrayin.route == 'string') { 
+	//({route:"val"})
 		route_id=arrayin.route
 		API = BASEAPI  + "?route=" + route_id;
-	} else if ( typeof arrayin == 'object' && typeof arrayin.trip == 'string') { //({route:"val"})
+	} else if ( typeof arrayin == 'object' && typeof arrayin.trip == 'string') { 
+	//({route:"val"})
 		trip_id=arrayin.trip
 		API = BASEAPI  + "?trip=" + trip_id;
-	} else 	if (typeof arrayin == 'undefined' ) { //()
+	} else 	if (typeof arrayin == 'undefined' ) { 
+	//()
 		// cuz iu'm too lazy to handle proper null logic right now. 
 		// planning that when i have prior history, i'' fill from that 
-		route_id = "BOLT";
-		// API = BASEAPI + "?route=" + route_id;
 		API = BASEAPI;
 	}
 //	alert("API AFTER " + API);
@@ -53,7 +62,6 @@ function proc_params(arrayin) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
-
 function apitrips(arrayin)
 {
 	proc_params(arrayin);
@@ -66,51 +74,49 @@ function apitrips(arrayin)
 		var x,y,z; // some collector varia:write
 		var h;  //headers
 
-
-
-
 		z = "<ul>";
 		var _tripId = '';
-		var _arrival_time_end = '';
 		var _arrival_time_begin = '';
 		var _route_id = '';
+
 		for (i in myObj) {
 			// use locObj for simpler referential syntax 
 			locObj = myObj[i];		
 
 			if (_tripId != locObj.trip_id) {
-			    _route_short_name = locObj["route_short_name"] || '';
-			    _route_long_name = locObj["route_long_name"] || '';
-			    _route_id = locObj["route_id"] || '';
-			    _arrival_time_begin = locObj["arrival_time"] || '';
 
+			    _arrival_time_end = locObj["arrival_time"] || '';
 
 				z += "<li data-role=\"fieldcontain\" class=\"ui-field-contain ui-last-child\">";
-			    z += "<span class='route_name' a" + 
-			        " style=\"color:#" + locObj.route_text_color + 
-			        ";background-color:#" + locObj.route_color + ";\">" +
-			        _route_id + " - ";
+			    z += "<span class='route_name' " + 
+			        " style=\"color:#" + _route_text_color + 
+			        ";background-color:#" + _route_color + ";\">" +
+			        _route_id + " - " + _route_id:w + " ";
 			    z +=  _route_long_name	 + "</span>";	
 
 				// get the last one, or blank
-				z += _arrival_time_begin	+ " - " + _arrival_time_end;
-				z += "<a class='btn btn-sm btn-info' href='#' role='button' onclick=\"apitrips({'trip':'" +  _tripId    + "'});\">detail</a>";
+				z += _arrival_time_begin	+ " - " + locObj["arrival_time"] ;
+				z += "<a class='btn btn-sm btn-info' href='#' role='button' " + 
+				    " onclick=\"apitrips({'trip':'" +  _tripId    + "'});\">Detail</a>";
 
-//set up for the last iteration of this
-				_tripId = locObj.trip_id;
-				_arrival_time_end = locObj.arrival_time;
+				//set up for the last iteration of this
+			    _route_short_name = locObj["route_short_name"] || '';
+			    _route_long_name  = locObj["route_long_name"] || '';
+			    _route_id         = locObj["route_id"] || '';
+			    _route_color      = locObj["route_color"] || '';
+			    _route_text_color = locObj["route_text_color"] || '';
+			    _route_id         = locObj["route_id"] || '';
+			    _trip_id          = locObj["trip_id"] || '';
+				_arrival_time_begin = locObj.arrival_time;
 
 			}
-	
-
-		// now let's get the things that didn't change at all 
-		//
   			console.log(locObj.trip_id);
 
   			//build the link for the stop
 			x += '<li>'; 
 			x +=  locObj.arrival_time;
-			x += "<a class='btn btn-sm btn-info' href='#' role='button' onclick=\"apistops({'stop':'" +  locObj.stop_id    + "'});\">" 
+			x += "<a class='btn btn-sm btn-info' href='#' role='button' " +
+			     " onclick=\"apistops({'stop':'" +  locObj.stop_id    + "'});\">" 
 			x +=  locObj.stop_name + "</a>";
 			x += '</li>';
 
@@ -118,15 +124,21 @@ function apitrips(arrayin)
 
 			// stash the values of this locObj into props so we have the last record 
 			// needed for getting the last arrival time in a trip before starting the next one
-//  			for(var prop in locObj) {
-//  				props[prop] = locObj[prop];
-//			}
+////  			for(var prop in locObj) { props[prop] = locObj[prop]; }
 		}//["0"].trip_id
 		z += "</ul>"
 	
-	
-		document.getElementById("main1").innerHTML = z;
-		document.getElementById("main2").innerHTML = x;
+		if (route_id != '') {
+		    document.getElementById("main1").innerHTML = z;
+		}
+
+		if (stop_id != '') {
+		    document.getElementById("main2").innerHTML = x;
+		}
+	}
+		if (trip_id != '') {
+		    document.getElementById("main2").innerHTML = x;
+		}
 	}
 }
 xmlhttp.open("GET", API, true);
