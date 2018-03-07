@@ -1,12 +1,14 @@
 // Main Site Funcs
 //IP address at home 
-var BASEAPI = 'http://192.168.23.18/rtd-routes/api-trips.php';
-//ip address at work
- BASEAPI = 'http://192.168.20.101/rtd-routes/api-trips.php';
+var SERVER_HOST = '192.168.23.18'; //ip address at home
+//    SERVER_HOST = '192.168.20.101'; //ip address at work
 
+var BASEAPI = 'http://' + SERVER_HOST + '/rtd-routes/api-trips.php';
 var API = '';
 
 function proc_params(arrayin) {
+
+
 //	alert ('type: ' + typeof arrayin);
 //	alert ('array test  ' + Array.isArray(arrayin));
 //	console.log ('arrayin type: ' + typeof arrayin);
@@ -43,11 +45,14 @@ function proc_params(arrayin) {
 		// API = BASEAPI + "?route=" + route_id;
 		API = BASEAPI;
 	}
-	alert("API AFTER " + API);
+//	alert("API AFTER " + API);
+	document.getElementById("main2").innerHTML = "API: " + API + " fetching...";
 	//  we can get slick here if we want - if it's all numeric and a certain length
 	// then we can assume its a trip
 	// eles its a route  - might be able to check if a route with a call 
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
 
 function apitrips(arrayin)
 {
@@ -149,3 +154,31 @@ function get_location () {
 	  document.write('Location permission denied');
 	}
 }
+
+
+function resetContact () {
+	document.getElementById("main1").innerHTML = " <h4>What is this?</h4> \
+          <p>Bus systems have adopted a common format called GTFS that makes it easy to describe an entire transportation \
+          systen, including mapping, in a series of text (CSV) files. This system allows you to navigate around in a city's \
+          public transportation system. In this incarnation, it's RTD on the Front Range of Colorado, but I've done some preliminary \
+          testing using the info published by BART </p>\
+          <h4>Who is Bob?</h4>\
+          <p>Bob Anzlovar (rcanzlovar at gmail) is the programmer and designer of this little app. He's done a couple \
+            of other versions in PHP. This is \
+          showing that I can build a full stack Javascript project. Please contact me if you are interested in hiring me. </p> ";
+	document.getElementById("main2").innerHTML = " <a href='http://rcanzlovar.com/'>\
+          <img src='http://rcanzlovar.com/wp-content/uploads/2012/05/20120520-012031.jpg' alt='Praise Bob!'> </a>";
+}
+
+function resetHead () {
+	document.getElementById("heading").innerHTML = "\
+<h1>Bus Routes 2018</h1>\
+        <p class=\"lead\">No matter where you go, there you are. We can help. </p>\
+        <p><a class=\"btn btn-lg btn-secondary\" href=\"#\" role=\"button\" onclick=\"apitrips({route:'BOLT'});\">BOLT Object</a></p>\
+        <p><a class=\"btn btn-lg btn-secondary\" href=\"#\" role=\"button\" onclick=\"apitrips(['LD1','LD2','lx1','lx2']);\">LD/LX array</a></p>\
+        <p><a class=\"btn btn-lg btn-secondary\" href=\"#\" role=\"button\" onclick=\"apitrips(['ff1','ff2','ff3','ff4','ff5','ff6']);\">FF array</a></p>\
+        <p><a class=\"btn btn-lg btn-success\" href=\"#\" role=\"button\" onclick=\"apitrips(['0','BOLT']);\">0  and bolt array</a></p>\
+        <p><a class=\"btn btn-lg btn-success\" href=\"#\" role=\"button\" onclick=\"apitrips('0');\">0 string</a></p>\
+        <p><a class=\"btn btn-lg btn-info\" href=\"#\" role=\"button\" onclick=\"apitrips();\">Default</a></p>";
+}
+
