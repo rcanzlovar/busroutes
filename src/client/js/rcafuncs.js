@@ -5,7 +5,7 @@
 
 
 var SERVER_HOST = '192.168.23.18'; //ip address at home
-//    SERVER_HOST = '192.168.20.101'; //ip address at work
+    SERVER_HOST = '192.168.20.101'; //ip address at work
 
 var BASEAPI = 'http://' + SERVER_HOST + '/rtd-routes/api-trips.php';
 var API = '';
@@ -23,8 +23,9 @@ function proc_params(arrayin) {
 //
 // we can take in a scalar, an array or an object
 //
-	var route_list1 = '';
-	var route_list2 = '';
+	route_id = '';
+    stop_id = '';
+    trip_id = '';
 
 	if ( Array.isArray(arrayin)) { 
 	//(["thing1","thing2"])
@@ -40,17 +41,21 @@ function proc_params(arrayin) {
 	//("thing")
 		route_id=arrayin
 		API = BASEAPI  + "?route=" + route_id;
+    } else if ( typeof arrayin == 'object' && typeof arrayin.stop == 'string') { 
+    //({stop:"val"})
+        stop_id=arrayin.stop
+        API = BASEAPI  + "?stop=" + stop_id;
 	} else if ( typeof arrayin == 'object' && typeof arrayin.route == 'string') { 
 	//({route:"val"})
 		route_id=arrayin.route
 		API = BASEAPI  + "?route=" + route_id;
 	} else if ( typeof arrayin == 'object' && typeof arrayin.trip == 'string') { 
-	//({route:"val"})
+	//({trip:"num"})
 		trip_id=arrayin.trip
 		API = BASEAPI  + "?trip=" + trip_id;
 	} else 	if (typeof arrayin == 'undefined' ) { 
 	//()
-		// cuz iu'm too lazy to handle proper null logic right now. 
+		// cuz i'm too lazy to handle proper null logic right now. 
 		// planning that when i have prior history, i'' fill from that 
 		API = BASEAPI;
 	}
@@ -74,52 +79,80 @@ function apitrips(arrayin)
 		var x,y,z; // some collector varia:write
 		var h;  //headers
 
-		z = "<ul>";
-		var _tripId = '';
+		x = "";
+        z = "<ul>";
+		var _trip_id = '';
 		var _arrival_time_begin = '';
 		var _route_id = '';
+		var _route_color = '';
+		var _route_text_color = '';
+		var _route_long_name = '';
+		var _route_short_name = '';
 
 		for (i in myObj) {
 			// use locObj for simpler referential syntax 
 			locObj = myObj[i];		
 
-			if (_tripId != locObj.trip_id) {
+			//if (_trip_id != '' && _trip_id != locObj.trip_id ) {
+            // x has information about routes    
+			if (_trip_id != locObj.trip_id ) {
 
-			    _arrival_time_end = locObj["arrival_time"] || '';
+//			    _arrival_time_end = locObj["arrival_time"] || '';
+			    if (_trip_id) {
+    				z += "<li data-role=\"fieldcontain\" class=\"ui-field-contain ui-last-child\">";
 
-				z += "<li data-role=\"fieldcontain\" class=\"ui-field-contain ui-last-child\">";
-			    z += "<span class='route_name' " + 
-			        " style=\"color:#" + _route_text_color + 
-			        ";background-color:#" + _route_color + ";\">" +
-			        _route_id + " - " + _route_id:w + " ";
-			    z +=  _route_long_name	 + "</span>";	
+                    // get the info from the last one 
+                    z += _arrival_time_begin    + " - " + _arrival_time_end ;
+                    z += "<a class='btn btn-sm btn-info' href='#' role='button' " + 
+                        " onclick=\"apitrips({'trip':'" +  _trip_id    + "'});\">Detail</a>"; 
+	      		    z += "<span class='route_name' " + 
+	      		         " style=\"color:#" + _route_text_color + 
+	      		         ";background-color:#" + _route_color + ";\">" +
+	      		         _route_short_name + " - " ;
+	      		    z += _route_long_name	 + "</span>";	
+                    z += "</ul>";
 
-				// get the last one, or blank
-				z += _arrival_time_begin	+ " - " + locObj["arrival_time"] ;
-				z += "<a class='btn btn-sm btn-info' href='#' role='button' " + 
-				    " onclick=\"apitrips({'trip':'" +  _tripId    + "'});\">Detail</a>";
+			    }
 
-				//set up for the last iteration of this
+				//set up for the next iteration... 
 			    _route_short_name = locObj["route_short_name"] || '';
-			    _route_long_name  = locObj["route_long_name"] || '';
-			    _route_id         = locObj["route_id"] || '';
-			    _route_color      = locObj["route_color"] || '';
+			    _route_long_name  = locObj["route_long_name"]  || '';
+			    _route_id         = locObj["route_id"]         || '';
+			    _route_color      = locObj["route_color"]      || '';
 			    _route_text_color = locObj["route_text_color"] || '';
-			    _route_id         = locObj["route_id"] || '';
-			    _trip_id          = locObj["trip_id"] || '';
-				_arrival_time_begin = locObj.arrival_time;
+			    _route_id         = locObj["route_id"]         || '';
+			    _trip_id          = locObj["trip_id"]          || '';
+
+				_arrival_time_begin = locObj.departure_time;
 
 			}
+			// update this each time... 
+			_arrival_time_end = locObj.arrival_time;
+
   			console.log(locObj.trip_id);
 
-  			//build the link for the stop
-			x += '<li>'; 
-			x +=  locObj.arrival_time;
+  			//x build the links with the stops
+			x += '<li>' + locObj.arrival_time;
 			x += "<a class='btn btn-sm btn-info' href='#' role='button' " +
-			     " onclick=\"apistops({'stop':'" +  locObj.stop_id    + "'});\">" 
-			x +=  locObj.stop_name + "</a>";
-			x += '</li>';
+			     " onclick=\"apitrips({'stop':'" +  locObj.stop_id    + "'});\">" 
+			x +=  locObj.stop_name + "</a></li>";
 
+
+            //y gets stop information
+            y += '<li>' +  locObj.departure_time; 
+
+            y += "<a class='btn btn-sm btn-info' href='#' role='button' " + 
+                 " onclick=\"apitrips({'trip':'" +  locObj.trip_id    + "'});\">Detail</a>";
+
+            y += "<a href='#'  onclick=\"apitrips({'route':'" + locObj.route_id    + "'});\">";
+            y += "<span class='route_name' " + 
+                 " style=\"color:#" + locObj.route_text_color + 
+                 ";background-color:#" + locObj.route_color + ";\">" +
+                 locObj.route_short_name + " - ";
+            y +=  locObj.route_long_name   + "</span></a>";   
+
+
+            y += "</li>";
 			console.log(locObj);
 
 			// stash the values of this locObj into props so we have the last record 
@@ -127,15 +160,17 @@ function apitrips(arrayin)
 ////  			for(var prop in locObj) { props[prop] = locObj[prop]; }
 		}//["0"].trip_id
 		z += "</ul>"
+		alert("routeid:" + route_id + " stopid:" + stop_id + " tripid:" + trip_id);
 	
 		if (route_id != '') {
 		    document.getElementById("main1").innerHTML = z;
+//            document.getElementById("main2").innerHTML = x;
 		}
 
 		if (stop_id != '') {
-		    document.getElementById("main2").innerHTML = x;
+		    document.getElementById("main2").innerHTML = y;
 		}
-	}
+	
 		if (trip_id != '') {
 		    document.getElementById("main2").innerHTML = x;
 		}
