@@ -8,28 +8,24 @@
 // 20160721 rca changed msql_connect to mysqli_connect and mysqli_close
 // 20160722 rca named get-routes.php and made the sql more restrictive
 // 20160722 rca named get-trips.php
-//interesting field definition stoff at the the botton 
+// Table field definition stoff at the the botton 
 // 
-#####
 $DEBUG = 0; 
 include_once ("funcs.php");
 include_once ('dbconnect.php');
+
 //require "getlogs.php";
 //logit($link);
 
-
 //s = service_id
 //dt=departure_time
-
-
-
 
 if (isset($_GET['service'])) {
     $service_id = $_GET['service']; 
 }
 
 if (isset($_GET['stop'])) {
-    $service_id = $_GET['s']; 
+    $stop_id = $_GET['s']; 
 }
 
 
@@ -51,7 +47,6 @@ if (isset($_GET['DEBUG'])) {
 // here we set $time parameters, if needed
 // 23feb18 rca
 // by default, go 20 minutes in the past and three hours in the future
-
 $sql_time_parameters = "AND st.departure_time > date_sub(curtime(), interval 20 minute) " . 
     "AND st.departure_time < date_add(curtime(), interval 3 hour) ";
 
@@ -71,10 +66,6 @@ if (isset ($departure_time)) {
     }
 }
 
-
-
-// if hothing else, then we will do trip listing for BOLT until i can come up with a good way to handle no default infromation (allpw people start with one of sevral sites, maybe? 
-
     //SERVICE ID
     // here we set $service_id_param
     if (isset ($service_id)) {
@@ -85,11 +76,12 @@ if (isset ($departure_time)) {
 
     ///////////////////////////////////////////////////////////////////////////
     //ROUTE ID
+    // if hothing else, then we will do trip listing for BOLT until i can come up with a 
+    // good way to handle no default infromation (allpw people start with one of sevral sites, maybe? 
     // here we set $route_id
     if (isset ($route_id) ) {
         // check if its a comma separated list of routes, set up the route selection criteria\
         // accordingly, blank otherwise .. `
-
         $routes = explode( ',', $route_id ); 
 
         if ( count($routes) > 1 ) { 
@@ -136,30 +128,28 @@ st.arrival_time    as arrival_time,
 st.departure_time  as departure_time 
  FROM trips t, stop_times st, routes r, stops s \n";
 
-
-    show_query($query);
-
-//print ("QUERY <pre>" . $query . "</pre><br/>\n") if $DEBUG;
-    // if trip and rouite are giiven, give precedence to the trip id 
-    if (isset ($trip_id)) {
+    // if trip and route are given, give precedence to the trip id 
+    if (isset ($stop_id)) {
+        $query .= " WHERE s.stop_id = '" . $stop_id . "' ";
+    } else if (isset ($trip_id)) {
         $query .= " WHERE t.trip_id = '" . $trip_id . "' ";
-    } else { 
-        if (isset ($route_clause)) {
-            $query .= $route_clause;
-        }
-    } 
+    } else if (isset ($route_clause)) {
+        $query .= $route_clause;
+    } else {
+        // what shall be the default behavior?
+        //
+    }
 
     //associate the tables to each other
     $query .= 
-" AND t.trip_id = st.trip_id " .
-" AND s.stop_id = st.stop_id " .
-" AND r.route_id = t.route_id " . 
-$sql_time_parameters . // what times should we display?  
-$service_id_param;		// what service id
+        " AND t.trip_id = st.trip_id " .
+        " AND s.stop_id = st.stop_id " .
+        " AND r.route_id = t.route_id " . 
+        $sql_time_parameters . // what times should we display?  
+        $service_id_param;		// what service id
 
     $query .= 
     " ORDER BY t.trip_id,st.stop_sequence";
-
 
 #    " ORDER BY st.stop_sequence,st.arrival_time ";
 #    " ORDER BY t.service_id,st.arrival_time ";
@@ -175,17 +165,19 @@ $service_id_param;		// what service id
     //run it
     $result = mysqli_query($link,$query) 
         or die('Query failed: ' . mysqli_error($link));
+    
 
 //#################### start output here ###########################
-$trip_array = array();
+//     the json_encode() needs it to be in an array, so...
 
 
-while ($line = mysqli_fetch_assoc($result)) {
-    $trip_array[] = $line;
-}
-echo json_encode($trip_array);
+    $trip_array = array();
+    while ($line = mysqli_fetch_assoc($result)) {
+        $trip_array[] = $line;
+    }
+    echo json_encode($trip_array);
 
-exit;
+    exit;
 
 // fields in TRIPS
 // route_id      | varchar(6) j| YES  |     | NULL
