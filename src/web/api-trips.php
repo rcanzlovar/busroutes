@@ -2,6 +2,7 @@
 //api-trips.php
 
 
+// 20180307 added code for resetting about me fields. updating main1 or main2 based on the param
 // 20180305 adding in ability to pass a list of routes like ld-1,ld-2,lx-1,lx-2
 
 // 20180223 changed this to api-trips and made it generate JSON 
@@ -25,7 +26,7 @@ if (isset($_GET['service'])) {
 }
 
 if (isset($_GET['stop'])) {
-    $stop_id = $_GET['s']; 
+    $stop_id = $_GET['stop']; 
 }
 
 
@@ -48,7 +49,7 @@ if (isset($_GET['DEBUG'])) {
 // 23feb18 rca
 // by default, go 20 minutes in the past and three hours in the future
 $sql_time_parameters = "AND st.departure_time > date_sub(curtime(), interval 20 minute) " . 
-    "AND st.departure_time < date_add(curtime(), interval 3 hour) ";
+    "AND st.departure_time < date_add(curtime(), interval 5 hour) ";
 
 if (isset ($departure_time)) {
     // probably should validate the time here and display an 
@@ -148,8 +149,15 @@ st.departure_time  as departure_time
         $sql_time_parameters . // what times should we display?  
         $service_id_param;		// what service id
 
-    $query .= 
-    " ORDER BY t.trip_id,st.stop_sequence";
+    // handle selection by stop, 
+    if ($stop_id) {
+        $query .= 
+            " ORDER BY st.arrival_time";
+    } else { 
+        //all others...
+        $query .= 
+            " ORDER BY t.trip_id,st.stop_sequence";
+    }
 
 #    " ORDER BY st.stop_sequence,st.arrival_time ";
 #    " ORDER BY t.service_id,st.arrival_time ";
