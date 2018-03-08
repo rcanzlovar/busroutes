@@ -1,4 +1,103 @@
 <?php
+
+
+
+#####################
+function expand_stopid ($stop_id) {
+
+
+ $query = 
+"SELECT s.stop_id as stop_id, 
+s.stop_name as stop_name, 
+s.stop_desc as stop_desc, 
+s.parent_station as parent_station, 
+s.stop_lat as stop_lat, 
+s.stop_lon as stop_lon   
+ FROM stops s
+ WHERE stop_id in ( $stop_id ) 
+ ORDER BY s.stop_desc";
+
+
+show_query($query);
+
+$result = mysqli_query($link,$query) or die('Query failed: ' . mysqli_error($link));
+
+// Printing results in HTML
+echo "<div class='section_header'>$page_title </div>";  
+
+// echo "<table>\n";
+while ($line = mysqli_fetch_array($result, MYSQLI_ASSOC)) {
+        // expand out the parent location and add it to the 
+    // stop_id list
+        if ($line["parent_station"] != "" && 
+            $line["parent_station"] != "0") { 
+
+            $stop_id .= "," . add_quotes(expand_stopids($link,$line["parent_station"]));
+        }
+printf(
+"<div class='page_header floating_element'>
+        <span class='floating_element'>
+<a href='http://maps.google.com/maps?z=12&t=m&q=loc:%s+%s'>
+<img src='img/map.png' border=0 alt='Google Map'>(%s)</a> %s<br/>%s</span><br/>%s", 
+      $line["stop_lat"], 
+     $line["stop_lon"], 
+    $line["stop_id"],
+    rem_gates($line["stop_name"]),
+    $line["stop_desc"],
+    expand_stop_names($link,array(
+        "stop_name"=>$line["stop_name"],
+        "scriptfile"=>__FILE__))); 
+    // print parent station if there is one
+    if ($line["parent_station"] != "" && 
+        $line["parent_station"] != "0") { 
+        echo "(parent:" . $line["parent_station"] . ")";
+    }
+?></span><?php
+    // make the links to this page
+
+    if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+        //echo 'This is a server using Windows!';
+        $scriptname = preg_replace('(^.+\\)','',__FILE__);
+    } else {
+        //echo 'This is a server not using Windows!';
+        $scriptname = preg_replace('(^.+/)','',__FILE__);
+    }
+    
+
+    if (isset($_GET["departure_time"]) 
+        &&  $_GET["departure_time"] == "all") {
+
+        printf( 
+"<a href='%s?stop_id=%s'>show only upcoming times for this stop</a>",
+            $scriptname, 
+            $_GET["stop_id"]);
+    } else {
+        printf( 
+"<a href='%s?departure_time=all&stop_id=%s'>show all times for this stop</a>",
+            $scriptname,
+            $_GET["stop_id"]); 
+//            remove_quotes($stop_id)); 
+    }   
+?>
+      </div> 
+<?php
+
+//    echo "\t<tr>\n";
+//        echo "\t\t<td>$line</td>\n";
+//    foreach ($line as $col_value) {
+//        echo "\t\t<td>$col_value</td>\n";
+//    }
+//    echo "\t</tr>\n";
+}
+// echo "</table>\n";
+
+
+
+}
+
+
+
+
 #####################
 function show_query ($querystring) {
 # put this here so i can control in one place whether and how the 
