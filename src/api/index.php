@@ -131,7 +131,25 @@ st.departure_time  as departure_time
 
     // if trip and route are given, give precedence to the trip id 
     if (isset ($stop_id)) {
-        $query .= " WHERE s.stop_id = '" . $stop_id . "' ";
+
+//         $query .= " WHERE s.stop_id = '" . $stop_id . "' ";
+
+
+        $expanded_stop_id  = expand_stopid($link,$stop_id); 
+        if ($stop_id == $expanded_stop_id) {
+             $query .= 
+            " WHERE st.stop_id = '" . $stop_id . "' ";
+        } else {
+             $query .= 
+            " WHERE st.stop_id in (" . $expanded_stop_id . ") ";
+        }
+
+
+
+
+
+
+
     } else if (isset ($trip_id)) {
         $query .= " WHERE t.trip_id = '" . $trip_id . "' ";
     } else if (isset ($route_clause)) {
@@ -150,7 +168,7 @@ st.departure_time  as departure_time
         $service_id_param;		// what service id
 
     // handle selection by stop, 
-    if ($stop_id) {
+    if (isset($stop_id)) {
         $query .= 
             " ORDER BY st.arrival_time";
     } else { 
@@ -166,7 +184,7 @@ st.departure_time  as departure_time
     // these can get kinda lengthy if you don't limit them, let's only pull a few hundred 
         // of them
 //    $query .= " LIMIT 0,2000 "; 
-//print ("QUERY <pre>" . $query . "</pre><br/>\n");
+// print ("QUERY <pre>" . $query . "</pre><br/>\n");
     //show_query has debug built into it 
     show_query($query);
 
