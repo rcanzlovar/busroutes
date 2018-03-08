@@ -1,13 +1,12 @@
 // rcafuncs.js - functions for busroutes
 // 
 
-
-
-
 var SERVER_HOST = '192.168.23.18'; //ip address at home
     SERVER_HOST = '192.168.20.101'; //ip address at work
 
-var BASEAPI = 'http://' + SERVER_HOST + '/rtd-routes/api-trips.php';
+var BASEAPI = 'http://' + SERVER_HOST + '/busroutes/api/'; 
+
+// '/rtd-routes/api-trips.php';
 var API = '';
 
 var route_id = '';
@@ -59,8 +58,7 @@ function proc_params(arrayin) {
 		// planning that when i have prior history, i'' fill from that 
 		API = BASEAPI;
 	}
-//	alert("API AFTER " + API);
-	document.getElementById("main2").innerHTML = "API: " + API + " fetching...";
+	document.getElementById("status").innerHTML = "Fetching: " + API + " ...";
 	//  we can get slick here if we want - if it's all numeric and a certain length
 	// then we can assume its a trip
 	// eles its a route  - might be able to check if a route with a call 
@@ -79,7 +77,8 @@ function apitrips(arrayin)
 		var x,y,z; // some collector varia:write
 		var h;  //headers
 
-		x = "";
+		x = "<ul>";
+        y = "<ul>";
         z = "<ul>";
 		var _trip_id = '';
 		var _arrival_time_begin = '';
@@ -93,39 +92,44 @@ function apitrips(arrayin)
 			// use locObj for simpler referential syntax 
 			locObj = myObj[i];		
 
-			//if (_trip_id != '' && _trip_id != locObj.trip_id ) {
-            // x has information about routes    
+            // x has information about routes - small potential bug in 
+            // because  
 			if (_trip_id != locObj.trip_id ) {
 
-//			    _arrival_time_end = locObj["arrival_time"] || '';
+    document.getElementById("status").innerHTML += _trip_id + ",<br>";
 			    if (_trip_id) {
-    				z += "<li data-role=\"fieldcontain\" class=\"ui-field-contain ui-last-child\">";
+//    				z += "<li data-role=\"fieldcontain\" class=\"ui-field-contain ui-last-child\">";
+                    z += "<li>";
 
+
+                    z += "<a class='btn btn-sm btn-info' href='#' role='button' " + 
+                        " onclick=\"apitrips({'trip':'" +  _trip_id    + "'});\">";
+                    z += "<img src='img/info16.png' border=0 alt='Detail'>";
+                    z +=    "</a>"; 
                     // get the info from the last one 
                     z += _arrival_time_begin    + " - " + _arrival_time_end ;
-                    z += "<a class='btn btn-sm btn-info' href='#' role='button' " + 
-                        " onclick=\"apitrips({'trip':'" +  _trip_id    + "'});\">Detail</a>"; 
+
 	      		    z += "<span class='route_name' " + 
 	      		         " style=\"color:#" + _route_text_color + 
 	      		         ";background-color:#" + _route_color + ";\">" +
 	      		         _route_short_name + " - " ;
 	      		    z += _route_long_name	 + "</span>";	
-                    z += "</ul>";
+                    z += "</li>";
 
 			    }
 
 				//set up for the next iteration... 
+                _route_id         = locObj["route_id"]         || '';
 			    _route_short_name = locObj["route_short_name"] || '';
 			    _route_long_name  = locObj["route_long_name"]  || '';
-			    _route_id         = locObj["route_id"]         || '';
 			    _route_color      = locObj["route_color"]      || '';
 			    _route_text_color = locObj["route_text_color"] || '';
-			    _route_id         = locObj["route_id"]         || '';
+
 			    _trip_id          = locObj["trip_id"]          || '';
 
 				_arrival_time_begin = locObj.departure_time;
-
 			}
+
 			// update this each time... 
 			_arrival_time_end = locObj.arrival_time;
 
@@ -139,12 +143,19 @@ function apitrips(arrayin)
 
 
             //y gets stop information
-            y += '<li>' +  locObj.departure_time; 
+            y += '<li>';
 
-            y += "<a class='btn btn-sm btn-info' href='#' role='button' " + 
-                 " onclick=\"apitrips({'trip':'" +  locObj.trip_id    + "'});\">Detail</a>";
+//            y += "<a class='btn btn-sm btn-info' href='#' role='button' " + 
+//                 " onclick=\"apitrips({'trip':'" +  locObj.trip_id    + "'});\">";
+            y += "<a href='#' " + 
+                 " onclick=\"apitrips({'trip':'" +  locObj.trip_id    + "'});\">";
 
-            y += "<a href='#'  onclick=\"apitrips({'route':'" + locObj.route_id    + "'});\">";
+
+            y += "<img src='img/info16.png' border=0 alt='Detail'>";
+            y += "</a>";
+            y  +=  locObj.departure_time; 
+
+            y += " <a href='#'  onclick=\"apitrips({'route':'" + locObj.route_id    + "'});\">";
             y += "<span class='route_name' " + 
                  " style=\"color:#" + locObj.route_text_color + 
                  ";background-color:#" + locObj.route_color + ";\">" +
@@ -159,8 +170,11 @@ function apitrips(arrayin)
 			// needed for getting the last arrival time in a trip before starting the next one
 ////  			for(var prop in locObj) { props[prop] = locObj[prop]; }
 		}//["0"].trip_id
-		z += "</ul>"
-		alert("routeid:" + route_id + " stopid:" + stop_id + " tripid:" + trip_id);
+
+		x += "</ul>"
+        y += "</ul>"
+        z += "</ul>"
+//		alert("routeid:" + route_id + " stopid:" + stop_id + " tripid:" + trip_id);
 	
 		if (route_id != '') {
 		    document.getElementById("main1").innerHTML = z;
@@ -174,6 +188,7 @@ function apitrips(arrayin)
 		if (trip_id != '') {
 		    document.getElementById("main2").innerHTML = x;
 		}
+    document.getElementById("status").innerHTML = "";
 	}
 }
 xmlhttp.open("GET", API, true);
