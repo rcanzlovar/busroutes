@@ -1,4 +1,4 @@
-# My Bua Routes
+# My Bus Routes
 
 ## What is this?
 
@@ -11,29 +11,41 @@ displayed by the client, written in Javascript.
 
 
 This system takes the static information from RTD website 
-http://www.rtd-denver.com/gtfs-developer-guide.shtml#realtime-feeds
+
+http://www.rtd-denver.com/gtfs-developer-guide.shtml
 
 This tries to answer some basic questions:
-- Where am I ? if you can give me a number from a RTD stop, i can show
-you where you are on a map because i have the lat/long
-- What buses can i take from here? I can tell you what routes you can take from
-where you are standing provided you can either select the place from a dropdown list 
-or enter the 5 digit stop code that is written on every bus stop sign in the city. 
+
+## Geo Location
+- Where am I? Even if you don't allow your browswer to know your location, Provided the 5 digit stop id from a RTD stop, 
+i can show you where you are on a map based on lat/long associated with that stop
 - What other stops are near me?  given either a GPS coordinate somehow (parse them out 
 a pasted URL or text if needed) or again, provided the 5 digit bus stop code, 
 we can select from the database based on the lat/lon values in our database. 
+
+Need to 
+
+
+
+- What buses can i take from here? If you type in the stop number, I can tell you what routes you can take from
+where you are standing provided you can either select the place from a dropdown list 
+or enter the 5 digit stop code that is written on every bus stop sign in the city. 
 - What routes can i catch from each of those? this is an iterated version of the previous question 
 about what buses leave form here. By clicking in, you can iterate from stop to trip to stop.
+### 
 - Where have i been - if you ientify with the system, we'll keep track of the stops you've 
 directly asked about, what routes you've asked about.  
-When you ask for a list of routes or stops, by default we'll only show the ones you know. 
 
-##########################
+- Plan for that when you ask for a list of routes or stops with no parameters, by default we'll only show the ones you know. 
+These will be stored in local storage. 
+
+## Web interface files 
+
 1. get-buses.php -  page that gives all the runs that go to this stop. 
 params in: 
 stop number
 departure_time
-
+_This file has the code for expanding one stop to all colocated stops like stations or park n rides._
 
 2. get-routes.php - page that lists routes - 
 Params in: 
