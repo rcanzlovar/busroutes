@@ -5,9 +5,9 @@ cat load.sql | mysql -u root
 (assumes user is in same directory as GTFS source files)
 */
 
-CREATE DATABASE IF NOT EXISTS wmata_gtfs;
+CREATE DATABASE IF NOT EXISTS wmata_gtfs2;
 
-USE wmata_gtfs
+USE wmata_gtfs2
 
 DROP TABLE IF EXISTS agency;
 
@@ -73,6 +73,17 @@ CREATE TABLE `stop_times` (
 	KEY `drop_off_type` (drop_off_type)
 );
 
+DROP TABLE IF EXISTS shapes;
+
+CREATE TABLE `shapes` (
+    shape_id INT(11) PRIMARY KEY,
+    shape_pt_lat DECIMAL(9,6),
+    shape_pt_lon DECIMAL(9,6),
+    shape_pt_sequehce INT(3),
+    shape_dist_traveled INT(6) 
+
+);
+
 DROP TABLE IF EXISTS stops;
 
 CREATE TABLE `stops` (
@@ -96,6 +107,7 @@ CREATE TABLE `trips` (
 	trip_headsign VARCHAR(255),
 	direction_id TINYINT(1),
 	block_id INT(11),
+	shape_id INT(11),
 	KEY `route_id` (route_id),
 	KEY `service_id` (service_id),
 	KEY `direction_id` (direction_id),
@@ -111,6 +123,8 @@ LOAD DATA LOCAL INFILE 'calendar_dates.txt' INTO TABLE calendar_dates FIELDS TER
 LOAD DATA LOCAL INFILE 'routes.txt' INTO TABLE routes FIELDS TERMINATED BY ',' IGNORE 1 LINES;
 
 LOAD DATA LOCAL INFILE 'stop_times.txt' INTO TABLE stop_times FIELDS TERMINATED BY ',' IGNORE 1 LINES;
+
+LOAD DATA LOCAL INFILE 'shapes.txt' INTO TABLE shapes FIELDS TERMINATED BY ',' IGNORE 1 LINES;
 
 LOAD DATA LOCAL INFILE 'stops.txt' INTO TABLE stops FIELDS TERMINATED BY ',' IGNORE 1 LINES;
 
