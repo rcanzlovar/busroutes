@@ -1,25 +1,30 @@
-My Bua Routes
+# My Bua Routes
 
-a system for navigting a city bus schedule from a phone using google transit format 
-information provided as CSV files, loaded into a MYSQL datbase and served via an apache
-web server, written in php, but will have javascript soon. 
+## What is this?
+
+This is da system for navigting a city bus schedule from a phone using google transit format  (GTFS)
+information provided as CSV files, loaded into a MYSQL datbase and 
+served via an apache
+web server. This was originally a PHP CGI app written in PHP. 
+The current implementaton uses JavaScript REST API. The server piece just reads the database and  writes out JSON, which is interpreted and 
+displayed by the client, written in Javascript. 
 
 
 This system takes the static information from RTD website 
 http://www.rtd-denver.com/gtfs-developer-guide.shtml#realtime-feeds
 
 This tries to answer some basic questions:
--where am I ? if you can give me a number from a RTD stop, i can show
+- Where am I ? if you can give me a number from a RTD stop, i can show
 you where you are on a map because i have the lat/long
-- what buses can i take from here? I can tell you what routes you can take from
+- What buses can i take from here? I can tell you what routes you can take from
 where you are standing provided you can either select the place from a dropdown list 
 or enter the 5 digit stop code that is written on every bus stop sign in the city. 
-- what other stops are near me?  given either a GPS coordinate somehow (parse them out 
+- What other stops are near me?  given either a GPS coordinate somehow (parse them out 
 a pasted URL or text if needed) or again, provided the 5 digit bus stop code, 
 we can select from the database based on the lat/lon values in our database. 
-- what routes can i catch from each of those? this is an iterated version of the previous question 
+- What routes can i catch from each of those? this is an iterated version of the previous question 
 about what buses leave form here. By clicking in, you can iterate from stop to trip to stop.
-- where have i been - if you ientify with the system, we'll keep track of the stops you've 
+- Where have i been - if you ientify with the system, we'll keep track of the stops you've 
 directly asked about, what routes you've asked about.  
 When you ask for a list of routes or stops, by default we'll only show the ones you know. 
 
