@@ -17,26 +17,36 @@
     <link href="css/jumbotron-narrow.css" rel="stylesheet">
   </head>
 
-  <body>
+  <body onload="resetContact()">
 
     <div class="container">
       <div class="header">
         <ul class="nav nav-pills pull-right">
-          <li class="active"><a class="btn btn-sm btn-secondary" href="#">Home</a></li>
-          <li><a class="btn btn-sm btn-info" href="#">About</a></li>
-          <li><a class="btn btn-sm btn-secondary" href="#" onclick="resetContact();">Contact</a></li>
+          <li class="active"><a class="btn btn-sm btn-secondary" href="#" onclick="resetContact()">Home</a></li>
+          <li><a class="btn btn-sm btn-secondary" href="#" onclick="apitrips('324');">324</a></li>
+          <li><a class="btn btn-sm btn-secondary" href="#" onclick="apitrips('BOLT');">BOLT</a></li>
+          <li><a class="btn btn-sm btn-secondary" href="#" onclick="apitrips(['LD1','LD2','lx1','lx2']);">LD/LX</a></li>
+          <li><a class="btn btn-sm btn-secondary" href="#" onclick="apitrips(['ff1','ff2','ff3','ff4','ff5','ff6']);">FF</a></li>
+          <li><a class="btn btn-sm btn-warning" href="#"  id="showHideContainer">reset</a></li>
         </ul>
         <h3 class="text-muted">BusRoutes 2018</h3>
       </div>
 
+<div  id="status"></div>
+
       <div class="jumbotron" id="heading">
-        <h1>Bus Routes 2018</h1>
+        <h1>RTD Bus Routes January 2018 - May 2018</h1>
+
         <p class="lead">No matter where you go, there you are. We can help. </p>
-        <p><a class="btn btn-lg btn-secondary" href="#" role="button" onclick="apitrips({route:'BOLT'});">BOLT Object</a></p>
-        <p><a class="btn btn-lg btn-secondary" href="#" role="button" onclick="apitrips(['LD1','LD2','lx1','lx2']);">LD/LX array</a></p>
-        <p><a class="btn btn-lg btn-secondary" href="#" role="button" onclick="apitrips(['ff1','ff2','ff3','ff4','ff5','ff6']);">FF array</a></p>
-        <p><a class="btn btn-lg btn-success" href="#" role="button" onclick="apitrips(['0','BOLT']);">0  and bolt array</a></p>
-        <p><a class="btn btn-lg btn-success" href="#" role="button" onclick="apitrips('0');">0 string</a></p>
+        <script type="text/javascript">
+//          document.getElementById('button0').addEventListener("click",apitrips('0'));
+        </script>
+        <p><a class="btn btn-lg btn-secondary" href="#" role="button" onclick="apitrips({route:'BOLT'});">{BOLT}</a></p>
+        <p><a class="btn btn-lg btn-secondary" href="#" role="button" onclick="apitrips(['LD1','LD2','lx1','lx2']);">[LD/LX]</a></p>
+        <p><a class="btn btn-lg btn-secondary" href="#" role="button" onclick="apitrips(['ff1','ff2','ff3','ff4','ff5','ff6']);">[FF*]</a></p>
+        <p><a class="btn btn-lg btn-success" href="#" role="button" onclick="apitrips(['0','BOLT']);">[0,bolt]</a></p>
+        <p><a class="btn btn-lg btn-success" href="#" role="button" onclick="apitrips('0');">(0)</a></p>
+        <p><a class="btn btn-lg btn-success" id='button0'  role="button">0 event</a></p>
         <p><a class="btn btn-lg btn-info" href="#" role="button" onclick="apitrips();">Default</a></p>
 
 <!-- 
@@ -60,7 +70,6 @@
 
  -->      
 
-<div  id="status"></div>
 
 </div>
 
@@ -85,7 +94,7 @@
       </div>
 
       <div class="footer">
-        <p>&copy; RCAnzlovar.com 2014</p>
+        <p>&copy; RCAnzlovar.com 2018</p>
       </div>
 
     </div> <!-- /container -->

@@ -14,12 +14,13 @@
     <script>
       function initMap() {
         var uluru = {lat: -25.363, lng: 131.044};
+        var stop15145 = { lat: 40.187735,lng: -105.102414};
         var map = new google.maps.Map(document.getElementById('map'), {
-          zoom: 4,
-          center: uluru
+          zoom: 17,
+          center: stop15145
         });
         var marker = new google.maps.Marker({
-          position: uluru,
+          position: stop15145,
           map: map
         });
       }
