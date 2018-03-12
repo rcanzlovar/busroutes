@@ -2,10 +2,10 @@
 // 
 
 var SERVER_HOST = '192.168.23.18'; //ip address at home
-//    SERVER_HOST = '192.168.20.101'; //ip address at work
+    SERVER_HOST = '192.168.20.101'; //ip address at work
 //   SERVER_HOST = 'rcanzlovar.com'; //ip address at work
 
-var BASEAPI = 'http://' + SERVER_HOST + '/busroutes/api/'; 
+var BASEAPI = 'http://' + SERVER_HOST + '/busroutes/api/?departure=08:00;00'; 
 
 // '/rtd-routes/api-trips.php';
 var API = '';
@@ -36,23 +36,23 @@ function proc_params(arrayin) {
 	    }
 	    //remove  trailing comma
         route_id = route_id.replace(/,\s*$/, "");
-	    API = BASEAPI  + "?route=" + route_id;
+	    API = BASEAPI  + "&route=" + route_id;
 	} else if (typeof arrayin == 'string') { 
 	//("thing")
 		route_id=arrayin
-		API = BASEAPI  + "?route=" + route_id;
+		API = BASEAPI  + "&route=" + route_id;
     } else if ( typeof arrayin == 'object' && typeof arrayin.stop == 'string') { 
     //({stop:"val"})
         stop_id=arrayin.stop
-        API = BASEAPI  + "?stop=" + stop_id;
+        API = BASEAPI  + "&stop=" + stop_id;
 	} else if ( typeof arrayin == 'object' && typeof arrayin.route == 'string') { 
 	//({route:"val"})
 		route_id=arrayin.route
-		API = BASEAPI  + "?route=" + route_id;
+		API = BASEAPI  + "&route=" + route_id;
 	} else if ( typeof arrayin == 'object' && typeof arrayin.trip == 'string') { 
 	//({trip:"num"})
 		trip_id=arrayin.trip
-		API = BASEAPI  + "?trip=" + trip_id;
+		API = BASEAPI  + "&trip=" + trip_id;
 	} else 	if (typeof arrayin == 'undefined' ) { 
 	//()
 		// cuz i'm too lazy to handle proper null logic right now. 
@@ -91,6 +91,7 @@ function apitrips(arrayin)
 		var h;  //headers
 
 		var _trip_id = '';
+		var _trip_headsign = '';
 		var _arrival_time_begin = '';
 		var _route_id = '';
 		var _route_color = '';
@@ -102,6 +103,7 @@ function apitrips(arrayin)
 			// use locObj for simpler referential syntax 
 			locObj = myObj[i];		
   			console.log(" trip id " + locObj.trip_id);
+  			console.log(" trip headsign " + locObj.trip_headsign);
 			console.log(locObj);
 
             // x has information about routes - small potential bug in 
@@ -142,19 +144,22 @@ function apitrips(arrayin)
 //                    z += "</li>";
 
 			    }
+			    console.log("tripsign" + locObj.trip_headsign);
 
 				//set up for the next iteration... 
                 _route_id         = locObj["route_id"]         || '';
 			    _route_short_name = locObj["route_short_name"] || '';
 			    _route_long_name  = locObj["route_long_name"]  || '';
 			    _route_color      = locObj["route_color"]      || '';
-			    _trip_headsign    = locObj["trip_headsign"]    || '';
+			    _trip_headsign    = locObj.trip_headsign;
 			    _route_text_color = locObj["route_text_color"] || '';
 
 			    _trip_id          = locObj["trip_id"]          || '';
 
 				_arrival_time_begin = locObj.departure_time;
 			}
+  			console.log(" again trip headsign " + locObj.trip_headsign);
+			    _trip_headsign    = locObj["trip_headsign"]    || '';
 
 			// update this each time... 
 			_arrival_time_end = locObj.arrival_time;
@@ -168,18 +173,23 @@ function apitrips(arrayin)
 	      		         locObj.route_short_name + "</span> " +
 	      		         locObj.route_long_name	 + "</h3>";	
 
-//  			x1 = "<span>" + locObj.route_short_name + "</h3>";
- ////// 			x1 += "<h3>" + locObj.route_long_name + "</h3>";
-//  			x1 += "<h3>" + locObj.trip_headsign + "</h3>";
+			//stop15145
             x += "<div class='trip_display' id='stop";
 			x += locObj.stop_id;
             x +=  "'>";
 
 			x += "<span class='time'>" + locObj.arrival_time + "</span>";
 
-			x += "<a class='btn btn-sm btn-info' href='#' role='button' " +
-			     " onclick=\"apitrips({'stop':'" +  locObj.stop_id    + "'});\">"; 
+			x += "<a class='btn btn-sm btn-secondary' href='#' role='button' " +
+			     " onclick=\"apitrips({'stop':'" +  locObj.stop_id    + "'});\">";
 			x +=  locObj.stop_name + "</a>";
+
+
+//			x += "<a class='btn btn-sm btn-info' href='#' role='button' " +
+//			     " onclick=\"initMap({'lat':'" +  locObj.stop_lat    + "','lon':'" + locObj.stop_lon  + "'});\">";
+//			x +=  "map</a>";
+
+
 			x += "</div>"
 
 
@@ -203,7 +213,7 @@ function apitrips(arrayin)
                  " style=\"color:#" + locObj.route_text_color + 
                  ";background-color:#" + locObj.route_color + ";\">" +
                  locObj.route_short_name + "</span> ";
-            y +=  locObj.route_long_name   + "</a>";   
+            y +=  locObj.trip_headsign   + "</a>";   
 
 
             y += "</div>";
@@ -235,8 +245,6 @@ function apitrips(arrayin)
 xmlhttp.open("GET", API, true);
 xmlhttp.send();
 }
-	//
-
 
 
 function get_location () {
@@ -261,22 +269,22 @@ function get_location () {
 
 function resetContact () {
 	document.getElementById("main1").innerHTML = " <h4>What is this?</h4> \
-          <p>Bus systems have adopted a common format called GTFS that makes it easy to describe an entire transportation \
-          systen, including mapping, in a series of text (CSV) files. This system allows you to navigate around in a city's \
-          public transportation system. In this incarnation, it's RTD on the Front Range of Colorado, but I've done some preliminary \
+          <p>Bus systems have adopted a common format called GTFS (google transport file system or somesuch) that makes it easy to describe an entire transportation \
+          systen, including detailed mapping, in a series of text (CSV) files. This system allows you to navigate around in a city's \
+          public transportation system. This implementation use the iformation published by RTD on the Front Range (Denver / Boulder) of Colorado, but I've done some preliminary \
           testing using the info published by BART </p>\
           <h4>Who is Bob?</h4>\
           <p>Bob Anzlovar (rcanzlovar at gmail) is the programmer and designer of this little app. He's done a couple \
             of other versions in PHP. This is \
-          showing that I can build a full stack Javascript project. Please contact me if you are interested in hiring me. </p> ";
+          showcasing a full stack Javascript project. </p><p>Please contact me if you are interested in hiring me. </p> ";
 	document.getElementById("main2").innerHTML = " <a href='http://rcanzlovar.com/'>\
           <img src='http://rcanzlovar.com/wp-content/uploads/2012/05/20120520-012031.jpg' alt='Praise Bob!'> </a>";
+
   document.getElementById('showHideContainer').onclick = function() {
     divTest = document.getElementById('heading');
     if (divTest.style.display === "none") {
         divTest.style.display = 'block';
-    }
-    else {
+    } else {
         divTest.style.display = "none";
     }
   }
@@ -293,6 +301,7 @@ function resetHead () {
         <p><a class=\"btn btn-lg btn-secondary\" href=\"#\" role=\"button\" onclick=\"apitrips(['ff1','ff2','ff3','ff4','ff5','ff6']);\">FF array</a></p>\
         <p><a class=\"btn btn-lg btn-success\" href=\"#\" role=\"button\" onclick=\"apitrips(['0','BOLT']);\">0  and bolt array</a></p>\
         <p><a class=\"btn btn-lg btn-success\" href=\"#\" role=\"button\" onclick=\"apitrips('0');\">0 string</a></p>\
+        <p><a class='btn btn-lg btn-success' id='mybutton'  role='button'>0 event</a></p>\
         <p><a class=\"btn btn-lg btn-info\" href=\"#\" role=\"button\" onclick=\"apitrips();\">Default</a></p>";
 }
 
