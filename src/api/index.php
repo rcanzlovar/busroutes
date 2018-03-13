@@ -44,28 +44,36 @@ if (isset($_GET['trip'])) {
 if (isset($_GET['DEBUG'])) {
     $DEBUG = $_GET['DEBUG']; 
 }
+
 //DEPARTURE TIME
 // here we set $time parameters, if needed
 // 23feb18 rca
 // by default, go 20 minutes in the past and three hours in the future
-$sql_time_parameters = "AND st.departure_time > date_sub(curtime(), interval 20 minute) " . 
-    "AND st.departure_time < date_add(curtime(), interval 5 hour) ";
+//
+// 08 mar 18 rca
+// changed to different time differential format because the MYSQL database on hostgator 
+// had stricter date formatting turned on. 
 
-if (isset ($departure_time)) {
+//$sql_time_parameters = 
+//    "AND st.departure_time > subtime(curtime(), '0:20:0') AND st.departure_time < addtime(curtime(), '5:00:00')";
+
+$sql_time_parameters = "";
+
     // probably should validate the time here and display an 
-    if ($departure_time == "all") {
+if (isset ($departure_time) && $departure_time == "all") {
         $sql_time_parameters = "";
-
-    } else {
-        $sql_time_parameters = "AND st.departure_time > " . 
-            $departure_time . " "  . 
-            "AND st.departure_time <= date_add('" . 
-            $departure_time . 
-            "', INTERVAL 3 HOUR ";
-        $sql_time_parameters = "AND st.departure_time > '" . 
-           $departure_time .  "' ";
-    }
+} else {
+    // 3 hours after...
+    $sql_time_parameters .= "AND st.departure_time <= addtime(";
+    $sql_time_parameters .= (isset($departure_time)) ? "'" . $departure_time . "'" : "curtime() "; 
+    $sql_time_parameters .= ",'3:0:0') ";
+    // and 20 minutes before
+    $sql_time_parameters .= "AND st.departure_time > subtime("; 
+    $sql_time_parameters .= (isset($departure_time)) ? "'" . $departure_time . "'" : "curtime() " ;
+    $sql_time_parameters .= ",'0:20:0') ";
 }
+
+
 
     //SERVICE ID
     // here we set $service_id_param
