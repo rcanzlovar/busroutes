@@ -2,10 +2,11 @@
 // 
 
 var SERVER_HOST = '192.168.23.18'; //ip address at home
-    SERVER_HOST = '192.168.20.101'; //ip address at work
+//    SERVER_HOST = '192.168.20.101'; //ip address at work
+//    SERVER_HOST = '127.0.0.1'; //ip address at work
 //   SERVER_HOST = 'rcanzlovar.com'; //ip address at work
 
-var BASEAPI = 'http://' + SERVER_HOST + '/busroutes/api/?departure=08:00;00'; 
+var BASEAPI = 'http://' + SERVER_HOST + '/busroutes/api/'; 
 
 // '/rtd-routes/api-trips.php';
 var API = '';
@@ -36,30 +37,30 @@ function proc_params(arrayin) {
 	    }
 	    //remove  trailing comma
         route_id = route_id.replace(/,\s*$/, "");
-	    API = BASEAPI  + "&route=" + route_id;
+	    API = BASEAPI  + "?route=" + route_id;
 	} else if (typeof arrayin == 'string') { 
 	//("thing")
 		route_id=arrayin
-		API = BASEAPI  + "&route=" + route_id;
+		API = BASEAPI  + "?route=" + route_id;
     } else if ( typeof arrayin == 'object' && typeof arrayin.stop == 'string') { 
     //({stop:"val"})
         stop_id=arrayin.stop
-        API = BASEAPI  + "&stop=" + stop_id;
+        API = BASEAPI  + "?stop=" + stop_id;
 	} else if ( typeof arrayin == 'object' && typeof arrayin.route == 'string') { 
 	//({route:"val"})
 		route_id=arrayin.route
-		API = BASEAPI  + "&route=" + route_id;
+		API = BASEAPI  + "?route=" + route_id;
 	} else if ( typeof arrayin == 'object' && typeof arrayin.trip == 'string') { 
 	//({trip:"num"})
 		trip_id=arrayin.trip
-		API = BASEAPI  + "&trip=" + trip_id;
+		API = BASEAPI  + "?trip=" + trip_id;
 	} else 	if (typeof arrayin == 'undefined' ) { 
 	//()
 		// cuz i'm too lazy to handle proper null logic right now. 
 		// planning that when i have prior history, i'' fill from that 
 		API = BASEAPI;
 	}
-	updatestatus( "Fetching:: " + API + " ...");
+	updatestatus( "Fetching " + API + " ...");
 	//  we can get slick here if we want - if it's all numeric and a certain length
 	// then we can assume its a trip
 	// eles its a route  - might be able to check if a route with a call 
@@ -70,6 +71,9 @@ function updatestatus(status) {
 
 }
 
+function trimtrack(string) {
+  return string.replace(/([track|gate].+)$/i, ''); // $& means the whole matched string
+}
 //////////////////////////////////////////////////////////////////////////////////////////////////
 function apitrips(arrayin)
 {
@@ -81,11 +85,11 @@ function apitrips(arrayin)
 
 		var i, j = '';
 		var x,y,z; // some collector varia:write
-		var x = '';
+		var x = '<ul>';
 		var x1 = '';
-		var y = '';
+		var y = '<ul>';
 		var y1 = '';
-		var z = '';
+		var z = "<ul>";
 		var z1 = '';
 
 		var h;  //headers
@@ -104,6 +108,7 @@ function apitrips(arrayin)
 			locObj = myObj[i];		
   			console.log(" trip id " + locObj.trip_id);
   			console.log(" trip headsign " + locObj.trip_headsign);
+			_trip_headsign = locObj.trip_headsign;
 			console.log(locObj);
 
             // x has information about routes - small potential bug in 
@@ -120,29 +125,52 @@ function apitrips(arrayin)
 //                    z += "<li>";
 //z1 = "<h3>" +  _route_short_name; 
 
-                    z +- "<div class='trip_display' id='" + _trip_id + "'>";
-	      		    z += "<div>";
-	      		    z += "<span class='route_name' " + 
-	      		         " style=\"color:#" + _route_text_color + 
-	      		         ";background-color:#" + _route_color + ";\">&nbsp;" +
-	      		         _route_short_name + "&nbsp;</span> " +
-	      		         _route_long_name	 + "<br />";	
-	      		         _trip_headsign	 + "</div>";	
+//                     z +- "<div class='trip_display' id='" + _trip_id + "'>";
+// 	      		    z += "<div>";
+// 	      		    z += "<span class='route_name' " + 
+// 	      		         " style=\"color:#" + _route_text_color + 
+// 	      		         ";background-color:#" + _route_color + ";\">&nbsp;" +
+// 	      		         _route_short_name + "&nbsp;</span> " +
+// 	      		         _route_long_name	 + "<br />";	
+// 	      		         _trip_headsign	 + "</div>";	
 
-                    z += "<a class='btn btn-sm btn-info' href='#' role='button' " + 
-                        " onclick=\"apitrips({'trip':'" +  _trip_id    + "'});\">";
-                    z += _arrival_time_begin + " - " + _arrival_time_end;
-//	      		    z +=  _route_short_name + " - ";
-//	      		    z += _route_long_name;	
-                    z +=    "</a>"; 
-//                    z += "<img src='img/info16.png' border=0 alt='Detail'>";
-                    // get the info from the last one 
+//                     z += "<a class='btn btn-sm btn-info' href='#' role='button' " + 
+//                         " onclick=\"apitrips({'trip':'" +  _trip_id    + "'});\">";
+//                     z += _arrival_time_begin + " - " + _arrival_time_end;
+// //	      		    z +=  _route_short_name + " - ";
+// //	      		    z += _route_long_name;	
+//                     z +=    "</a>"; 
+// //                    z += "<img src='img/info16.png' border=0 alt='Detail'>";
+//                     // get the info from the last one 
 
-//                    z += "<span class='time'>" + _arrival_time_begin + " - " + _arrival_time_end + "</span";
+// //                    z += "<span class='time'>" + _arrival_time_begin + " - " + _arrival_time_end + "</span";
 
-                    z += "</div><br />"; // class=trip_display
-//                    z += "</li>";
-
+//                     z += "</div><br />"; // class=trip_display
+// //                    z += "</li>";
+z += "<li class='trip_display' style='color:#" +
+_route_text_color +
+";background-color:#" +
+ _route_color +
+";'>" + "<span class='route_name'>" +
+_route_short_name +
+"</span>" + "&nbsp;" +
+_route_long_name + "<br />" +
+_trip_headsign +
+"<span style='float:right;'>" +
+"<a class='btn btn-sm btn-light btn-right' href='#' role='button' " + 
+" onclick=\"apitrips({'trip':'" +  _trip_id    + "'});\">" +
+ _arrival_time_begin + " - " + _arrival_time_end +
+ "</a></span>" +
+ "</li>";
+/*
+ <li class='trip_display' id='123'
+   style="color:#ffffff ;background-color:#bb0000;">
+   z&nbsp;
+   BOLT&nbsp; Boulder is the place to be<br /> West bound 
+   <span style="float:right;">
+<a class='btn btn-sm btn-light btn-right' href='#' role='button'> 11:00 - 12:00 </a></span>
+</li>
+*/
 			    }
 			    console.log("tripsign" + locObj.trip_headsign);
 
@@ -165,65 +193,96 @@ function apitrips(arrayin)
 			_arrival_time_end = locObj.arrival_time;
 
 
+  			// Build trip index 
   			//x build the links with the stops
 //  			x1 += "<h3>" + locObj.stop_name + "</h3>";
-	      		    x1 = "<h3><span class='route_name' " + 
-	      		         " style=\"color:#" + locObj.route_text_color + 
-	      		         ";background-color:#" + locObj.route_color + ";\">" +
-	      		         locObj.route_short_name + "</span> " +
-	      		         locObj.route_long_name	 + "</h3>";	
+	      	x1 = "<h3><span class='route_name' " + 
+	      	     " style=\"color:#" + locObj.route_text_color + 
+	      	     ";background-color:#" + locObj.route_color + ";\">" +
+	      	     locObj.route_short_name + "</span> " +
+	      	     locObj.route_long_name	 + "</h3>";	
 
 			//stop15145
-            x += "<div class='trip_display' id='stop";
+            x += "<li class='trip_display' id='stop";
 			x += locObj.stop_id;
             x +=  "'>";
 
-			x += "<span class='time'>" + locObj.arrival_time + "</span>";
+    x += "<a class='btn btn-lg btn-light btn-right' href='#' role='button'>" +
+		locObj.arrival_time +
+        "</a>" + "<a class='btn btn-sm btn-secondary btn-wide' href='#' role='button' " + 
+		"<a class='btn btn-sm btn-secondary' href='#' role='button' " +
+		" onclick=\"apitrips({'stop':'" + locObj.stop_id + "'});\">";
 
-			x += "<a class='btn btn-sm btn-secondary' href='#' role='button' " +
-			     " onclick=\"apitrips({'stop':'" +  locObj.stop_id    + "'});\">";
-			x +=  locObj.stop_name + "</a>";
+// 	x += " style='overflow: hidden;'>";
+	x += locObj.stop_name + "</a>" + "</li>";
 
+
+/*
+
+  <li>
+    <a class="btn btn-lg btn-light btn-right" href="#" role="button">10:12</a>
+    <a class='btn btn-sm btn-secondary btn-wide' href='#' role='button' 
+ onclick="apitrips({'stop':'tjonmg.stop_id'});"
+ style="overflow: hidden;">
+stopname</a>
+  </li>
+*/
 
 //			x += "<a class='btn btn-sm btn-info' href='#' role='button' " +
 //			     " onclick=\"initMap({'lat':'" +  locObj.stop_lat    + "','lon':'" + locObj.stop_lon  + "'});\">";
 //			x +=  "map</a>";
 
 
-			x += "</div>"
 
 
             // gets stop information
+            // remove "gate * " and track* at the end 
+            var short_stop_name = locObj.stop_name
+
+
             y1  =  "<h3>"; 
-			y1 +=  locObj.stop_name;
+			y1 +=  trimtrack(locObj.stop_name);
             y1  +=  "</h3>"; 
 
-            y += "<div>";
+//             y += "<div>";
 
-            y += "<a class='btn btn-sm btn-info' href='#' role='button' " + 
-                 " onclick=\"apitrips({'trip':'" +  locObj.trip_id    + "'});\">";
-
-
-//            y += "<img src='img/info16.png' border=0 alt='Detail'>";
-            y  +=  locObj.departure_time; 
-            y += "</a>";
-
-            y += " <a href='#'  onclick=\"apitrips({'route':'" + locObj.route_id    + "'});\">";
-            y += "<span class='route_name' " + 
-                 " style=\"color:#" + locObj.route_text_color + 
-                 ";background-color:#" + locObj.route_color + ";\">" +
-                 locObj.route_short_name + "</span> ";
-            y +=  locObj.trip_headsign   + "</a>";   
+//             y += "<a class='btn btn-sm btn-info' href='#' role='button' " + 
+//                  " onclick=\"apitrips({'trip':'" +  locObj.trip_id    + "'});\">";
 
 
-            y += "</div>";
+// //            y += "<img src='img/info16.png' border=0 alt='Detail'>";
+//             y  +=  locObj.departure_time; 
+//             y += "</a>";
 
+//             y += " <a href='#'  onclick=\"apitrips({'route':'" + locObj.route_id    + "'});\">";
+//             y += "<span class='route_name' " + 
+//                  " style=\"color:#" + locObj.route_text_color + 
+//                  ";background-color:#" + locObj.route_color + ";\">" +
+//                  locObj.route_short_name + "</span> ";
+//             y +=  locObj.trip_headsign   + "</a>";   
+
+
+//             y += "</div>";
+
+y += "<li>" + 
+  "<a class='btn btn-sm btn-info btn-right' href='#' role='button' " +
+  "onclick=\"apitrips({'trip':'" + locObj.trip_id    + "'});\">" +
+  locObj.departure_time + "</a>" + 
+  "<a class='btn btn-sm btn-secondary btn-wide' href='#' role='button' " +
+   " onclick=i\"apitrips({'route':'" + locObj.route_short_name + "'});\">" +
+   " <span class='route_name' style='color:#" + locObj.route_text_color + ";background-color:#" + locObj.route_color + ";'>" +
+   locObj.route_short_name + "</span> " +
+  locObj.trip_headsign +
+"</a></li>";
 			// stash the values of this locObj into props so we have the last record 
 			// needed for getting the last arrival time in a trip before starting the next one
 ////  			for(var prop in locObj) { props[prop] = locObj[prop]; }
 		}//["0"].trip_id
 
 //		alert("routeid:" + route_id + " stopid:" + stop_id + " tripid:" + trip_id);
+		x += "</ul>";
+		y += "</ul>";
+		z += "</ul>";
 	
 		if (route_id != '') {
 		    document.getElementById("main1").innerHTML = z1 + z;

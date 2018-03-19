@@ -1,3 +1,44 @@
+
+
+ul {
+    list-style-type: none;
+    padding: 0;
+    border: 1px solid #ddd;
+}
+
+ul li {
+    padding: 8px 16px;
+    border-bottom: 5px solid #ddd;
+}
+
+ul li:last-child {
+    border-bottom: none
+}
+
+
+/* my additions 17-mar-18 rca */
+.btn-left {
+  float: left;
+}
+.btn-right {
+  float: right;
+}
+.btn-wide {
+  width: 70%;
+}
+
+}
+/* Supporting marketing content */
+.route_name {
+  font-size: 40px;
+}
+
+
+
+
+
+
+
 /* Space out content a bit */
 body {
   padding-top: 20px;
@@ -50,16 +91,13 @@ body {
   font-size: 21px;
   padding: 14px 24px;
 }
-
-/* Supporting marketing content */
-.marketing {
-  margin: 40px 0;
-}
 .marketing p + h4 {
   margin-top: 28px;
 }
 
 /* Responsive: Portrait tablets and up */
+/*  Here is where we get rid of floats */ 
+
 @media screen and (min-width: 768px) {
   /* Remove the padding we set earlier */
   .header,
