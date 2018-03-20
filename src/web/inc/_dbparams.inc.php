@@ -6,9 +6,9 @@ $dbhost = "localhost";
 $dbname = 'anzlovar_rtd-transit';
 
 $username = "root";
-$password = "";
+$password = "wordpass123";
 
 $dbhost = "localhost";
-$dbname = 'rtdtransit';
+$dbname = 'wmata_gtfs';
 
 ?>
