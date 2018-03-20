@@ -2,6 +2,8 @@
 //api-trips.php
 
 
+// 20180320 changed stop_id and trip id to varchar because BART has things like 11111WK for trip ids 
+
 // 20180307 added code for resetting about me fields. updating main1 or main2 based on the param
 // 20180305 adding in ability to pass a list of routes like ld-1,ld-2,lx-1,lx-2
 
@@ -66,7 +68,7 @@ if (isset ($departure_time) && $departure_time == "all") {
     // 3 hours after...
     $sql_time_parameters .= "AND st.departure_time <= addtime(";
     $sql_time_parameters .= (isset($departure_time)) ? "'" . $departure_time . "'" : "curtime() "; 
-    $sql_time_parameters .= ",'3:0:0') ";
+    $sql_time_parameters .= ",'6:0:0') ";
     // and 20 minutes before
     $sql_time_parameters .= "AND st.departure_time > subtime("; 
     $sql_time_parameters .= (isset($departure_time)) ? "'" . $departure_time . "'" : "curtime() " ;
@@ -106,7 +108,7 @@ if (isset ($departure_time) && $departure_time == "all") {
             $route_clause = " WHERE t.route_id = '" . $route_id . "' ";; 
         }
     } else {
-        $route_clause = " WHERE t.route_id = 'BOLT' ";
+        $route_clause = " WHERE t.route_id = '05' ";
     }
 
     //potential URL to call this
@@ -193,6 +195,7 @@ st.departure_time  as departure_time
         // of them
 //    $query .= " LIMIT 0,2000 "; 
 // print ("QUERY <pre>" . $query . "</pre><br/>\n");
+
     //show_query has debug built into it 
     show_query($query);
 

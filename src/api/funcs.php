@@ -7,6 +7,7 @@
 # given a stop_ID, if it has a parent_id, get the rest of the stop_ids from the 
 # same location i.e. park n ride or station
 function expand_stopid ($link,$stop_id) {
+   $stop_id_expanded =  add_quotes($stop_id);
     $query = 
 "SELECT s.stop_id as stop_id, 
 s.stop_name as stop_name, 
@@ -15,10 +16,9 @@ s.parent_station as parent_station,
 s.stop_lat as stop_lat, 
 s.stop_lon as stop_lon   
  FROM stops s
- WHERE stop_id in ( $stop_id ) 
+ WHERE stop_id in ( $stop_id_expanded ) 
  ORDER BY s.stop_desc";
 
-   $stop_id_expanded = $stop_id;
 
    $result = mysqli_query($link,$query) or die('Query failed: ' . mysqli_error($link));
 // Printing results in HTML
@@ -33,6 +33,7 @@ s.stop_lon as stop_lon
             $stop_id_expanded .= "," . add_quotes(expand_stopids($link,$line["parent_station"]));
         }
     }
+
     return($stop_id_expanded);
 } 
 
@@ -107,7 +108,7 @@ function expand_stopids ($link,$parent_id) {
         or die('Query failed: ' . mysqli_error($link) . 'ZZZ');
 
     while ($line = mysqli_fetch_array($result, MYSQLI_ASSOC)) {
-        $stop_id_out .= $line["stop_id"] . ",";
+        $stop_id_out .= "'" . $line["stop_id"] . "',";
     }
      return trim($stop_id_out,",");
     // echo "stop_id_out $stop_id_out<br/>";
