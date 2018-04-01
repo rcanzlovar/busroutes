@@ -68,6 +68,8 @@ if (isset ($departure_time) && $departure_time == "all") {
     // 3 hours after...
     $sql_time_parameters .= "AND st.departure_time <= addtime(";
     $sql_time_parameters .= (isset($departure_time)) ? "'" . $departure_time . "'" : "curtime() "; 
+    // here we should make some allowance for the time, like if it's midnight, make
+    //us look 6 hours, but 3 otherwise 
     $sql_time_parameters .= ",'6:0:0') ";
     // and 20 minutes before
     $sql_time_parameters .= "AND st.departure_time > subtime("; 
@@ -78,6 +80,7 @@ if (isset ($departure_time) && $departure_time == "all") {
 
 
     //SERVICE ID
+    $service_id_param = "";
     // here we set $service_id_param
     if (isset ($service_id)) {
 		$service_id_param = "AND t.service_id in (" . add_quotes($service_id) . ") ";
@@ -104,6 +107,13 @@ if (isset ($departure_time) && $departure_time == "all") {
 
             $route_clause = rtrim($route_clause, ',');// strip off the trailing comma
             $route_clause .= ") ";
+        } else if (strpos($route_id, '*') !== false) {
+        // } else if ($route_id /* has * in it */) {
+            /* allow for * wildcards */
+            $route_expanded = str_replace("*", "%", $route_id);
+            // my $route_expanded = /* s/\* /%/g */;
+            $route_clause = " WHERE t.route_id like '" . $route_expanded . "'"; 
+            // . "' ";
         } else {
             $route_clause = " WHERE t.route_id = '" . $route_id . "' ";; 
         }
@@ -194,7 +204,7 @@ st.departure_time  as departure_time
     // these can get kinda lengthy if you don't limit them, let's only pull a few hundred 
         // of them
 //    $query .= " LIMIT 0,2000 "; 
-// print ("QUERY <pre>" . $query . "</pre><br/>\n");
+ print ("QUERY <pre>" . $query . "</pre><br/>\n");
 
     //show_query has debug built into it 
     show_query($query);
@@ -257,4 +267,34 @@ st.departure_time  as departure_time
 // stop_url      | varchar(200) | NO   |     | NULL
 // location_type | int(2)       | NO   |     | NULL
 //
+    /*
+    SELECT  
+r.route_short_name as route_short_name,
+r.route_long_name  as route_long_name,
+r.route_id         as route_id,
+r.route_color      as route_color,
+r.route_text_color as route_text_color,
+s.stop_desc        as stop_desc, 
+s.stop_name        as stop_name,  
+s.stop_id          as stop_id,  
+s.stop_lat         as stop_lat,  
+s.stop_lon         as stop_lon,  
+t.service_id       as service_id,  
+t.trip_headsign    as trip_headsign,
+t.trip_id          as trip_id,
+t.service_id       as service_id,
+st.stop_sequence   as stop_sequence,
+st.arrival_time    as arrival_time,
+st.departure_time  as departure_time 
+ FROM trips t, stop_times st, routes r, stops s 
+ WHERE t.route_id like 'ff%'  
+ AND t.trip_id = st.trip_id  
+ AND s.stop_id = st.stop_id  
+ AND r.route_id = t.route_id 
+ AND st.departure_time <= addtime(curtime() ,'6:0:0') 
+ AND st.departure_time > subtime(curtime() ,'0:20:0') 
+ AND t.service_id in ('SA')  
+ ORDER BY t.trip_id,st.stop_sequence
+  */
+
 ?>
