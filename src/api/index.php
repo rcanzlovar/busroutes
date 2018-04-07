@@ -204,7 +204,9 @@ st.departure_time  as departure_time
     // these can get kinda lengthy if you don't limit them, let's only pull a few hundred 
         // of them
 //    $query .= " LIMIT 0,2000 "; 
- print ("QUERY <pre>" . $query . "</pre><br/>\n");
+    if (isset($DEBUG) && $DEBUG == 1) { 
+        print ("QUERY <pre>" . $query . "</pre><br/>\n");
+    }
 
     //show_query has debug built into it 
     show_query($query);
