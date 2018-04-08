@@ -60,7 +60,8 @@ function proc_params(arrayin) {
 		// planning that when i have prior history, i'' fill from that 
 		API = BASEAPI;
 	}
-	updatestatus( "Fetching <a href='" + API + "&DEBUG=1'>" + API + "</a>");
+	// do we need to worry about whether this is the first and only param on CGI?
+	updatestatus( "Fetching <a href='" + API + "&DEBUG=1' target='_blank'>" + API + "</a>");
 	//  we can get slick here if we want - if it's all numeric and a certain length
 	// then we can assume its a trip
 	// eles its a route  - might be able to check if a route with a call 
