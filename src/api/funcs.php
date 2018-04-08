@@ -30,7 +30,8 @@ s.stop_lon as stop_lon
         if ($line["parent_station"] != "" && 
             $line["parent_station"] != "0") { 
 
-            $stop_id_expanded .= "," . add_quotes(expand_stopids($link,$line["parent_station"]));
+            // ### $stop_id_expanded .= "," . add_quotes(expand_stopids($link,$line["parent_station"]));
+            $stop_id_expanded .= "," . expand_stopids($link,$line["parent_station"]));
         }
     }
 
