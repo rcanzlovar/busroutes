@@ -66,13 +66,13 @@ if (isset ($departure_time) && $departure_time == "all") {
         $sql_time_parameters = "";
 } else {
     // 3 hours after...
-    $sql_time_parameters .= "AND st.departure_time <= addtime(";
+    $sql_time_parameters .= "\n AND st.departure_time <= addtime(";
     $sql_time_parameters .= (isset($departure_time)) ? "'" . $departure_time . "'" : "curtime() "; 
     // here we should make some allowance for the time, like if it's midnight, make
     //us look 6 hours, but 3 otherwise 
     $sql_time_parameters .= ",'6:0:0') ";
     // and 20 minutes before
-    $sql_time_parameters .= "AND st.departure_time > subtime("; 
+    $sql_time_parameters .= "\n AND st.departure_time > subtime("; 
     $sql_time_parameters .= (isset($departure_time)) ? "'" . $departure_time . "'" : "curtime() " ;
     $sql_time_parameters .= ",'0:20:0') ";
 }
@@ -83,9 +83,9 @@ if (isset ($departure_time) && $departure_time == "all") {
     $service_id_param = "";
     // here we set $service_id_param
     if (isset ($service_id)) {
-		$service_id_param = "AND t.service_id in (" . add_quotes($service_id) . ") ";
+		$service_id_param = "\n AND t.service_id in (" . add_quotes($service_id) . ") ";
     } else {		
-		$service_id_param = "AND t.service_id in (" . add_quotes(get_service($link,getdate()["weekday"])) . ") ";
+		$service_id_param = "\n AND t.service_id in (" . add_quotes(get_service($link,getdate()["weekday"])) . ") ";
 	}
 
     ///////////////////////////////////////////////////////////////////////////
@@ -99,7 +99,7 @@ if (isset ($departure_time) && $departure_time == "all") {
         $routes = explode( ',', $route_id ); 
 
         if ( count($routes) > 1 ) { 
-            $route_clause = " WHERE t.route_id in (";
+            $route_clause = "\n WHERE t.route_id in (";
 
             foreach ($routes as $route) {
                 $route_clause .= "'" . $route . "',";
@@ -112,13 +112,13 @@ if (isset ($departure_time) && $departure_time == "all") {
             /* allow for * wildcards */
             $route_expanded = str_replace("*", "%", $route_id);
             // my $route_expanded = /* s/\* /%/g */;
-            $route_clause = " WHERE t.route_id like '" . $route_expanded . "'"; 
+            $route_clause = "\n WHERE t.route_id like '" . $route_expanded . "'"; 
             // . "' ";
         } else {
-            $route_clause = " WHERE t.route_id = '" . $route_id . "' ";; 
+            $route_clause = "\n WHERE t.route_id = '" . $route_id . "' ";; 
         }
     } else {
-        $route_clause = " WHERE t.route_id = '05' ";
+        $route_clause = "\n WHERE t.route_id = '05' ";
     }
 
     //potential URL to call this
@@ -155,14 +155,17 @@ st.departure_time  as departure_time
 //         $query .= " WHERE s.stop_id = '" . $stop_id . "' ";
 
 
+        print $stop_id . " ZZZZZZZ<br />";
         $expanded_stop_id  = expand_stopid($link,$stop_id); 
+        print $expanded_stop_id . " ZZZZZZZ<br />";
         if ($stop_id == $expanded_stop_id) {
              $query .= 
-            " WHERE st.stop_id = '" . $stop_id . "' ";
+            "\n WHERE st.stop_id = '" . $stop_id . "' ";
         } else {
              $query .= 
-            " WHERE st.stop_id in (" . $expanded_stop_id . ") ";
+            "\n WHERE st.stop_id in (" . $expanded_stop_id . ") ";
         }
+        print $query . "<br />";
 
 
 
@@ -171,7 +174,7 @@ st.departure_time  as departure_time
 
 
     } else if (isset ($trip_id)) {
-        $query .= " WHERE t.trip_id = '" . $trip_id . "' ";
+        $query .= "\n WHERE t.trip_id = '" . $trip_id . "' ";
     } else if (isset ($route_clause)) {
         $query .= $route_clause;
     } else {
