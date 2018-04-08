@@ -60,7 +60,7 @@ function proc_params(arrayin) {
 		// planning that when i have prior history, i'' fill from that 
 		API = BASEAPI;
 	}
-	updatestatus( "Fetching " + API + " ...");
+	updatestatus( "Fetching <a href='" + API + "&DEBUG=1'>" + API + "</a>");
 	//  we can get slick here if we want - if it's all numeric and a certain length
 	// then we can assume its a trip
 	// eles its a route  - might be able to check if a route with a call 
