@@ -31,7 +31,6 @@ if (isset($_GET['stop'])) {
     $stop_id = $_GET['stop']; 
 }
 
-
 if (isset($_GET['departure'])) {
     $departure_time = $_GET['departure']; 
 }
@@ -43,6 +42,7 @@ if (isset($_GET['route'])) {
 if (isset($_GET['trip'])) {
     $trip_id = $_GET['trip']; 
 }
+
 if (isset($_GET['DEBUG'])) {
     $DEBUG = $_GET['DEBUG']; 
 }

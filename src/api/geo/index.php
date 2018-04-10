@@ -4,15 +4,26 @@
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  */
     $DEBUG = isset($_GET['DEBUG']) ? $_GET['DEBUG']  : 0; 
 
+    require '../inc/dbparams.inc.php';  // defines $dsn, $username, $password
+    $dsn = "mysql:host=127.0.0.1;dbname=$dbname";
+    $db = new PDO($dsn, $username, $password);
+    $db->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_OBJ);
+
+
     if (isset($_GET['q'])) {
          [$lat, $lon] = explode(",",$_GET['q']);
-         echo "HERE IS $lat $lon <br>";
     } else if (isset($_GET['stop'])) {
         // get latlong from the stop number 
          $stop_id = $_GET['stop']; 
         // [$lat, $lon] = explode(",",getlatlong($_GET['stop']));
-         [$lat, $lon] = explode(",","39.704446,-105.250268");
-        // get lat and long 
+        $sql = "Select stop_lat, stop_lon from stops where stop_id = '$stop_id'";
+        $spot = $db->prepare($sql);
+        if ($spot->execute()) {
+            while ($row = $spot->fetch(PDO::FETCH_ASSOC)) {
+                $lat = $row['stop_lat'];
+                $lon = $row['stop_lon'];
+            }
+        } 
     } else {
         $lat = isset($_GET['lat']) ? $_GET['lat']  : 39.704446; // latitude of centre of bounding circle in degrees
         $lon = isset($_GET['lon']) ? $_GET['lon']  : -105.250268; // latitude of centre of bounding circle in degrees
@@ -29,20 +40,19 @@
     $minLon = $lon - rad2deg(asin($rad/$R) / cos(deg2rad($lon)));
 
     if ($DEBUG) {
-
-
         echo "<pre>
 127.0.0.1/busroutes/api/geo/?lat=40.187735&lon=-105.102414
 127.0.0.1/busroutes/api/geo/?q=40.187735,-105.102414
-127.0.0.1/busroutes/api/geo/?stop=40.187735,-105.102414
+127.0.0.1/busroutes/api/geo/?stop=15145
+http://maps.google.com/maps?q=40.187735,-105.102414
 https://www.transit.wiki/Map:RTD_323
 https://www.transit.wiki/RTD_BOLT
 https://www.transit.wiki/8th_%26_Coffman
 https://www.transit.wiki/RTD_Longmont_Call-n-Ride
 </pre>";
-
-echo "<ul><li>location  $lat , \n";
-echo " $lon\n";
+echo "<ul><li>";
+echo "<a href='http://maps.google.com/maps?q=$lat,$lon' target='_blank'>location $lat, ";
+echo " $lon</a>\n";
 echo "</li>";
 echo "<li>min $minLat\n";
 echo " $minLon\n";
@@ -51,24 +61,15 @@ echo " $maxLon</li>";
 echo "<li>R $R,\n";
 echo " rad $rad</li>\n";
 echo "</ul>\n";
-
     }
 
-
-
-
-    require '../inc/dbparams.inc.php';  // defines $dsn, $username, $password
-    $dsn = "mysql:host=127.0.0.1;dbname=$dbname";
-    $db = new PDO($dsn, $username, $password);
-    $db->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_OBJ);
-
-    $sql = "Select stop_id, stop_name, stop_lat, stop_Lon,
+    $sql = "Select stop_id, stop_name, stop_lat as Lat, stop_Lon as Lon,
                    acos(sin(:lat)*sin(radians(Lat)) + cos(:lat)*cos(radians(Lat))*cos(radians(Lon)-:lon)) * :R As D
             From ( 
-                SELECT stop_id, stop_name, stop_lat, stop_lon
+                SELECT stop_id, stop_name, stop_lat, stop_lon, stop_desc
                 FROM stops
-    WHERE stop_lat BETWEEN :minLat AND :maxLat
-      And stop_lon BETWEEN :minLon AND :maxLon
+                WHERE stop_lat BETWEEN :minLat AND :maxLat
+                And stop_lon BETWEEN :minLon AND :maxLon
             ) AS FirstCut
             wHERE acos(sin(:lat)*sin(radians(Lat)) + cos(:lat)*cos(radians(Lat))*cos(radians(Lon)-:lon)) * :R < :rad
             ORDER BY D";
@@ -110,10 +111,11 @@ if ($points->execute()) {
 // the simpler one 
 
     $sql1 = "
-    Select stop_id, stop_name, stop_lat, stop_lon
+    Select stop_id, stop_name, stop_lat, stop_lon, stop_desc
     From stops
     Where stop_lat Between :minLat And :maxLat
-      And stop_lon Between :minLon And :maxLon";
+      And stop_lon Between :minLon And :maxLon 
+      ORDER BY stop_name";
 
     $points1 = $db->prepare($sql1);
     // this nonsense is to ensure that this works for whatever quadrant of the globe you are using
@@ -143,13 +145,20 @@ if ($points1->execute()) {
             print "<a href='/busroutes/api/?stop=" . $row["stop_id"] . "'>detail</a></td><td>";
             print $row["stop_id"] . "</td><td>";
             print $row["stop_name"] . "</td><td>";
+            $foo =  $row["stop_desc"];
+            $a =      explode(' ',$foo);
+            print array_pop($a);
+            
+
+            print "</td><td>";
             print " <a href='http://maps.google.com/maps?q=";
             print $row["stop_lat"] . ",";
             print $row["stop_lon"] . "'>map</a>";
-            print " <a href='/busroutes/api/geo.php?lat="; 
-            print $row["stop_lat"] . "&";
-            print "lon="; 
+            print " <a href='/busroutes/api/geo/?q="; 
+            print $row["stop_lat"] . ",";
             print $row["stop_lon"] . "'>hop</a>";
+            print " <a href='/busroutes/api/geo/?stop="; 
+            print $row["stop_id"] . "'>hip</a>";
             print "</td></tr>";
         } // if $DEBUG
     } // while 
@@ -158,3 +167,4 @@ if ($points1->execute()) {
     echo json_encode($places);
 } // if execute  
 ?>
+
