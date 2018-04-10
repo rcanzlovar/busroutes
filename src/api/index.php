@@ -130,48 +130,37 @@ if (isset ($departure_time) && $departure_time == "all") {
     // build SQL query
     $query = 
 "SELECT  
-r.route_short_name as route_short_name,
-r.route_long_name  as route_long_name,
-r.route_id         as route_id,
-r.route_color      as route_color,
-r.route_text_color as route_text_color,
-s.stop_desc        as stop_desc, 
-s.stop_name        as stop_name,  
-s.stop_id          as stop_id,  
-s.stop_lat         as stop_lat,  
-s.stop_lon         as stop_lon,  
-t.service_id       as service_id,  
-t.trip_headsign    as trip_headsign,
-t.trip_id          as trip_id,
-t.service_id       as service_id,
-st.stop_sequence   as stop_sequence,
-st.arrival_time    as arrival_time,
-st.departure_time  as departure_time 
+r.route_short_name AS route_short_name,
+r.route_long_name  AS route_long_name,
+r.route_id         AS route_id,
+r.route_color      AS route_color,
+r.route_text_color AS route_text_color,
+s.stop_desc        AS stop_desc, 
+s.stop_name        AS stop_name,  
+s.stop_id          AS stop_id,  
+s.stop_lat         AS stop_lat,  
+s.stop_lon         AS stop_lon,  
+t.service_id       AS service_id,  
+t.trip_headsign    AS trip_headsign,
+t.trip_id          AS trip_id,
+t.service_id       AS service_id,
+st.stop_sequence   AS stop_sequence,
+st.arrival_time    AS arrival_time,
+st.departure_time  AS departure_time 
  FROM trips t, stop_times st, routes r, stops s \n";
 
     // if trip and route are given, give precedence to the trip id 
     if (isset ($stop_id)) {
 
 //         $query .= " WHERE s.stop_id = '" . $stop_id . "' ";
-
-
-        print $stop_id . " ZZZZZZZ<br />";
         $expanded_stop_id  = expand_stopid($link,$stop_id); 
-        print $expanded_stop_id . " ZZZZZZZ<br />";
         if ($stop_id == $expanded_stop_id) {
              $query .= 
-            "\n WHERE st.stop_id = '" . $stop_id . "' ";
+            " WHERE st.stop_id = '" . $stop_id . "' ";
         } else {
              $query .= 
-            "\n WHERE st.stop_id in (" . $expanded_stop_id . ") ";
+            " WHERE st.stop_id in (" . $expanded_stop_id . ") ";
         }
-        print $query . "<br />";
-
-
-
-
-
-
 
     } else if (isset ($trip_id)) {
         $query .= "\n WHERE t.trip_id = '" . $trip_id . "' ";
@@ -184,20 +173,20 @@ st.departure_time  as departure_time
 
     //associate the tables to each other
     $query .= 
-        " AND t.trip_id = st.trip_id " .
-        " AND s.stop_id = st.stop_id " .
-        " AND r.route_id = t.route_id " . 
+        "\n AND t.trip_id = st.trip_id " .
+        "\n AND s.stop_id = st.stop_id " .
+        "\n AND r.route_id = t.route_id " . 
         $sql_time_parameters . // what times should we display?  
         $service_id_param;		// what service id
 
     // handle selection by stop, 
     if (isset($stop_id)) {
         $query .= 
-            " ORDER BY st.arrival_time";
+            "\n ORDER BY st.arrival_time";
     } else { 
         //all others...
         $query .= 
-            " ORDER BY t.trip_id,st.stop_sequence";
+            "\n  ORDER BY t.trip_id,st.stop_sequence";
     }
 
 #    " ORDER BY st.stop_sequence,st.arrival_time ";
