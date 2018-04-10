@@ -1,0 +1,25 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "copy-client",
+            "type": "shell",
+            "command": "copy-item -recurse -force client/*  -destination c:/users/public/htdocs/busroutes",
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            }
+        },
+        {
+            "label": "copy-api",
+            "type": "shell",
+            "command": "copy-item -recurse -force api/*  -destination c:/users/public/htdocs/busroutes/api",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        }
+    ]
+}
