@@ -4,8 +4,20 @@
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  */
     $DEBUG = isset($_GET['DEBUG']) ? $_GET['DEBUG']  : 0; 
 
-    $lat = isset($_GET['l at']) ? $_GET['lat']  : 39.704446; // latitude of centre of bounding circle in degrees
-    $lon = isset($_GET['lon']) ? $_GET['lon']  : -105.250268; // latitude of centre of bounding circle in degrees
+    if (isset($_GET['q'])) {
+         [$lat, $lon] = explode(",",$_GET['q']);
+         echo "HERE IS $lat $lon <br>";
+    } else if (isset($_GET['stop'])) {
+        // get latlong from the stop number 
+         $stop_id = $_GET['stop']; 
+        // [$lat, $lon] = explode(",",getlatlong($_GET['stop']));
+         [$lat, $lon] = explode(",","39.704446,-105.250268");
+        // get lat and long 
+    } else {
+        $lat = isset($_GET['lat']) ? $_GET['lat']  : 39.704446; // latitude of centre of bounding circle in degrees
+        $lon = isset($_GET['lon']) ? $_GET['lon']  : -105.250268; // latitude of centre of bounding circle in degrees
+    }
+
     $rad = isset($_GET['rad']) ? $_GET['rad']  : 2; // latitude of centre of bounding circle in degrees
 
     $R = 6371;  // earth's mean radius, km
@@ -20,7 +32,9 @@
 
 
         echo "<pre>
-127.0.0.1/busroutes/api/geo.php?lat=40.187735&lon=-105.102414
+127.0.0.1/busroutes/api/geo/?lat=40.187735&lon=-105.102414
+127.0.0.1/busroutes/api/geo/?q=40.187735,-105.102414
+127.0.0.1/busroutes/api/geo/?stop=40.187735,-105.102414
 https://www.transit.wiki/Map:RTD_323
 https://www.transit.wiki/RTD_BOLT
 https://www.transit.wiki/8th_%26_Coffman
@@ -54,35 +68,21 @@ echo "</ul>\n";
                 SELECT stop_id, stop_name, stop_lat, stop_lon
                 FROM stops
     WHERE stop_lat BETWEEN :minLat AND :maxLat
-      And stop_lon BETWEEN :maxLon AND :minLon
+      And stop_lon BETWEEN :minLon AND :maxLon
             ) AS FirstCut
             wHERE acos(sin(:lat)*sin(radians(Lat)) + cos(:lat)*cos(radians(Lat))*cos(radians(Lon)-:lon)) * :R < :rad
             ORDER BY D";
-
-    $sql1 = "
-    Select stop_id, stop_name, stop_lat, stop_lon
-    From stops
-    Where stop_lat Between :minLat And :maxLat
-      And stop_lon Between :maxLon And :minLon";
-    $points1 = $db->prepare($sql1);
-        $points1->bindValue(':minLat' , $minLat);
-        $points1->bindValue(':minLon' , $minLon);
-        $points1->bindValue(':maxLat' , $maxLat);
-        $points1->bindValue(':maxLon' , $maxLon);
 
     $points = $db->prepare($sql);
     // slip in the parameters 
         $points->bindValue(':lat'    , deg2rad($lat));
         $points->bindValue(':lon'    , deg2rad($lon));
-        $points->bindValue(':minLat' , $minLat);
-        $points->bindValue(':minLon' , $minLon);
-        $points->bindValue(':maxLat' , $maxLat);
-        $points->bindValue(':maxLon' , $maxLon);
+        $points->bindValue(':minLon' , min($minLon,$maxLon));
+        $points->bindValue(':minLat' , min($minLat,$maxLat));
+        $points->bindValue(':maxLon' , max($minLon,$maxLon));
+        $points->bindValue(':maxLat' , max($minLat,$maxLat));
         $points->bindValue(':rad'    , $rad);
         $points->bindValue(':R'      , $R);
-//    $points->execute($params);
-
-
 
 if ($points->execute()) {
     if ($DEBUG) { print "<table>"; }
@@ -102,6 +102,26 @@ if ($points->execute()) {
     }
     if ($DEBUG) { print "</table>"; }
 }
+
+
+
+
+
+// the simpler one 
+
+    $sql1 = "
+    Select stop_id, stop_name, stop_lat, stop_lon
+    From stops
+    Where stop_lat Between :minLat And :maxLat
+      And stop_lon Between :minLon And :maxLon";
+
+    $points1 = $db->prepare($sql1);
+    // this nonsense is to ensure that this works for whatever quadrant of the globe you are using
+
+        $points1->bindValue(':minLon' , min($minLon,$maxLon));
+        $points1->bindValue(':minLat' , min($minLat,$maxLat));
+        $points1->bindValue(':maxLon' , max($minLon,$maxLon));
+        $points1->bindValue(':maxLat' , max($minLat,$maxLat));
 
 // build the array of the stops, then push it out as JSON at the end 
 $places = array();
