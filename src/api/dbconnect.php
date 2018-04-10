@@ -1,6 +1,13 @@
 <?php
 // dbconnect.php - keep the database connect details out of the main code. 
-include 'inc/dbparams.inc.php';
+
+$dbparams_file =  'inc/dbparams.inc.php';
+if (file_exists($dbparams_file)) {
+    include $dbparams_file; 
+} else {
+    echo "Unable to continue No db params file ";
+    exit;
+}
 
 // put this at the top of any code to connect to the database 
 if (!isset ($link) && $DEBUG) {
