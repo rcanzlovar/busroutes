@@ -286,7 +286,7 @@ function resetContact () {
             of other versions in PHP. This is \
           showcasing a full stack Javascript project. </p><p>Please contact me if you are interested in hiring me. </p> ";
 	document.getElementById("main2").innerHTML = " <a href='http://rcanzlovar.com/'>\
-          <img src='http://rcanzlovar.com/wp-content/uploads/2012/05/20120520-012031.jpg' alt='Praise Bob!'> </a>";
+          <img src='img/bobpic.jpg' alt='...'> </a>";
 
   document.getElementById('showHideContainer').onclick = function() {
     divTest = document.getElementById('heading');
