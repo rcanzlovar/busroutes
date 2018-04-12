@@ -1,7 +1,7 @@
 // Listen for form submit
 //document.getElementById('myForm').addEventListener('submit', saveBookmark);
 
-var stash = 'router'//this should nedver be used 
+var stash = 'router'
 
 // Save Bookmark
 // saveThing({id:'15145',name:'main and 17th',stash:'mystops'})
@@ -47,7 +47,7 @@ function saveThing(e){
     console.log(localStorage.getItem('test'));
   */
 
-  // Test if stashplace is null
+  // Test if bookmarks is null
   if(localStorage.getItem(stash) === null){
     // Init array
     var things = [];
@@ -56,9 +56,9 @@ function saveThing(e){
     // Set to localStorage
     localStorage.setItem(stash, JSON.stringify(things));
   } else {
-    // Get stashplace from localStorage
+    // Get bookmarks from localStorage
     var things = JSON.parse(localStorage.getItem(stash));
-    // Add stashplace to array
+    // Add bookmark to array
     things.push(thing);
     // Re-set back to localStorage
     localStorage.setItem(stash, JSON.stringify(things));
@@ -121,23 +121,14 @@ function fetchThings(e){
     thingsResults.innerHTML += "<div class='well'>"+
                                   "<h3>"+name+
                                   " <a class='btn btn-default' target="_blank" href="'+url+'">Visit</a> ' +
-                                  " <a onclick=\"deleteThing({'id':'"+id+'\'})" class="btn btn-danger" href="#">Delete</a> ' +
+                                  " <a onclick=\"deleteThing({'id':'"+id+'\')" class="btn btn-danger" href="#">Delete</a> ' +
                                   "</h3>"+
                                   "</div>";
 */
-        thingsResult.innerHTML +=    "<div class='well'>"
-        +"<a class='btn btn-sm btn-secondary' href='#'  " ;
-
-        /*
-    if (stash == 'routes') {
-       thingsResult.innerHTML += "onclick=\"apitrips('"+id+"');\">"+id+"&nbsp;"+name+"</a>";
-    }
-    if (stash == 'stops') {
-        thingsResult.innerHTML += "onclick=\"apitrips({'stop':'"+id+"'});\">"+name+"</a>";
-    }
-      */
-       thingsResult.innerHTML += " onclick=\"apitrips('"+id+"');\">"+id+"&nbsp;"+name+"</a>";
-    thingsResult.innerHTML +=         "</div";
+    thingsResult.innerHTML += "<div class='well'>"
+          +"<a class='btn btn-sm btn-secondary' href='#'  "
+          +"onclick=\"apitrips('"+id+"');\">"+id+'&nbsp;'+name+"</a>"
+          +"</div";
   }
 }
 
