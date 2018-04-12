@@ -108,6 +108,7 @@ function apitrips(arrayin)
 		var _route_text_color = '';
 		var _route_long_name = '';
 		var _route_short_name = '';
+        thingsResult.innerHTML += "onclick=\"apitrips({'stop':'"+id+"'});\">"+name+"</a>";
 
 		for (i in myObj) {
 			// use locObj for simpler referential syntax 
