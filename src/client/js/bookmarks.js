@@ -1,19 +1,42 @@
 // Listen for form submit
-document.getElementById('myForm').addEventListener('submit', saveBookmark);
+//document.getElementById('myForm').addEventListener('submit', saveBookmark);
+
+var stash = 'router'//this should nedver be used 
 
 // Save Bookmark
-function saveBookmark(e){
-  // Get form values
-  var siteName =document.getElementById('siteName').value;
-  var siteUrl =document.getElementById('siteUrl').value;
+// saveThing({id:'15145',name:'main and 17th',stash:'mystops'})
+function isThingSaved(e){
+  if ( typeof e == 'object' && typeof e.id == 'string') { id = e.id }
+  if ( typeof e == 'object' && typeof e.stash == 'string') { stash = e.stash }
 
-  if(!validateForm(siteName, siteUrl)){
-    return false;
+  if(localStorage.getItem(stash) === null){
+    return 0;
   }
 
-  var bookmark = {
-    name: siteName,
-    url: siteUrl
+  var things = JSON.parse(localStorage.getItem(stash));
+  // Loop through the bookmarks
+  for(var i =0;i < things.length;i++){
+    if(things[i].id == id){
+      // Remove from array
+      return 1;
+    }
+  }
+  return 0;
+}
+
+function saveThing(e){
+  if ( typeof e == 'object' && typeof e.id == 'string') { id = e.id }
+  if ( typeof e == 'object' && typeof e.name == 'string') { name = e.name }
+  if ( typeof e == 'object' && typeof e.stash == 'string') { stash = e.stash }
+  if ( typeof e == 'object' && typeof e.result == 'string') { result = e.result }
+
+//  if(!validateForm(siteName, siteUrl)){
+//    return false;
+//  }
+
+  var thing = {
+    'id': id,
+    'name': name
   }
 
   /*
@@ -24,70 +47,97 @@ function saveBookmark(e){
     console.log(localStorage.getItem('test'));
   */
 
-  // Test if bookmarks is null
-  if(localStorage.getItem('bookmarks') === null){
+  // Test if stashplace is null
+  if(localStorage.getItem(stash) === null){
     // Init array
-    var bookmarks = [];
+    var things = [];
     // Add to array
-    bookmarks.push(bookmark);
+    things.push(thing);
     // Set to localStorage
-    localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
+    localStorage.setItem(stash, JSON.stringify(things));
   } else {
-    // Get bookmarks from localStorage
-    var bookmarks = JSON.parse(localStorage.getItem('bookmarks'));
-    // Add bookmark to array
-    bookmarks.push(bookmark);
+    // Get stashplace from localStorage
+    var things = JSON.parse(localStorage.getItem(stash));
+    // Add stashplace to array
+    things.push(thing);
     // Re-set back to localStorage
-    localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
+    localStorage.setItem(stash, JSON.stringify(things));
   }
 
   // Clear form
-  document.getElementById('myForm').reset();
+//  document.getElementById('myForm').reset();
 
   // Re-fetch bookmarks
-  fetchBookmarks();
-
-  // Prevent form from submitting
-  e.preventDefault();
+  fetchThings({'stash':stash,'result':result});
 }
 
 // Delete bookmark
-function deleteBookmark(url){
+function deleteThing(e){
+  if ( typeof e == 'object' && typeof e.id == 'string') { id = e.id }
+  if ( typeof e == 'object' && typeof e.stash == 'string') { stash = e.stash }
+  if ( typeof e == 'object' && typeof e.stash == 'result') { result = e.result }
   // Get bookmarks from localStorage
-  var bookmarks = JSON.parse(localStorage.getItem('bookmarks'));
+  var things = JSON.parse(localStorage.getItem(stash));
   // Loop through the bookmarks
-  for(var i =0;i < bookmarks.length;i++){
-    if(bookmarks[i].url == url){
+  for(var i =0;i < things.length;i++){
+    if(things[i].id == id){
       // Remove from array
-      bookmarks.splice(i, 1);
+      things.splice(i, 1);
     }
   }
   // Re-set back to localStorage
-  localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
+  localStorage.setItem(stash, JSON.stringify(things));
 
   // Re-fetch bookmarks
-  fetchBookmarks();
+  fetchThings({'stash':stash,'result':result});
 }
 
 // Fetch bookmarks
-function fetchBookmarks(){
+//fetchBookmarks({stash:'stops',results:'heading'})
+function fetchThings(e){
+  if ( typeof e == 'object' && typeof e.stash == 'string') { stash = e.stash }
+  if ( typeof e == 'object' && typeof e.result == 'string') { result = e.result }
+
+  // init it if it isnt there 
+  if(localStorage.getItem(stash) === null){
+    // Init array
+    var things = [];
+    // Add to array
+    things.push(thing);
+    // Set to localStorage
+    localStorage.setItem(stash, JSON.stringify(things));
+  } 
   // Get bookmarks from localStorage
-  var bookmarks = JSON.parse(localStorage.getItem('bookmarks'));
+  var things = JSON.parse(localStorage.getItem(stash));
   // Get output id
-  var bookmarksResults = document.getElementById('bookmarksResults');
+  var thingsResult = document.getElementById(result);
 
   // Build output
-  bookmarksResults.innerHTML = '';
-  for(var i = 0; i < bookmarks.length; i++){
-    var name = bookmarks[i].name;
-    var url = bookmarks[i].url;
+  thingsResult.innerHTML = '';
+  for(var i = 0; i < things.length; i++){
+    var name = things[i].name;
+    var id = things[i].id;
+/*
+    thingsResults.innerHTML += "<div class='well'>"+
+                                  "<h3>"+name+
+                                  " <a class='btn btn-default' target="_blank" href="'+url+'">Visit</a> ' +
+                                  " <a onclick=\"deleteThing({'id':'"+id+'\'})" class="btn btn-danger" href="#">Delete</a> ' +
+                                  "</h3>"+
+                                  "</div>";
+*/
+        thingsResult.innerHTML +=    "<div class='well'>"
+        +"<a class='btn btn-sm btn-secondary' href='#'  " ;
 
-    bookmarksResults.innerHTML += '<div class="well">'+
-                                  '<h3>'+name+
-                                  ' <a class="btn btn-default" target="_blank" href="'+url+'">Visit</a> ' +
-                                  ' <a onclick="deleteBookmark(\''+url+'\')" class="btn btn-danger" href="#">Delete</a> ' +
-                                  '</h3>'+
-                                  '</div>';
+        /*
+    if (stash == 'routes') {
+       thingsResult.innerHTML += "onclick=\"apitrips('"+id+"');\">"+id+"&nbsp;"+name+"</a>";
+    }
+    if (stash == 'stops') {
+        thingsResult.innerHTML += "onclick=\"apitrips({'stop':'"+id+"'});\">"+name+"</a>";
+    }
+      */
+       thingsResult.innerHTML += " onclick=\"apitrips('"+id+"');\">"+id+"&nbsp;"+name+"</a>";
+    thingsResult.innerHTML +=         "</div";
   }
 }
 
