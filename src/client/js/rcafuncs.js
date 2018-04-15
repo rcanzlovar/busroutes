@@ -24,44 +24,55 @@ function proc_params(arrayin) {
 //
 // we can take in a scalar, an array or an object
 //
-	route_id = '';
-    stop_id = '';
-    trip_id = '';
+    var myReturn = '?';
 
+//ROUTE
 	if ( Array.isArray(arrayin)) { 
 	//(["thing1","thing2"])
+	// make it a CSV 
+	    route_id += "route=" + route_id + '&';
 	    for (i = 0;i < arrayin.length; i++) {
 	    	route_id += arrayin[i] + ",";
-	    	//route_list1 += arrayin[i] + ",";
-	    	//route_list2 += "\"" + arrayin[i] + "\",";
 	    }
 	    //remove  trailing comma
-        route_id = route_id.replace(/,\s*$/, "");
-	    API = BASEAPI  + "?route=" + route_id;
-	} else if (typeof arrayin == 'string') { 
+        route_id = myReturn.replace(/,\s*$/, "");
+	    myReturn += route_id + '&';
+	} 
+
+	if (typeof arrayin == 'string') { 
 	//("thing")
 		route_id=arrayin
-		API = BASEAPI  + "?route=" + route_id;
-    } else if ( typeof arrayin == 'object' && typeof arrayin.stop == 'string') { 
-    //({stop:"val"})
-        stop_id=arrayin.stop
-        API = BASEAPI  + "?stop=" + stop_id;
-	} else if ( typeof arrayin == 'object' && typeof arrayin.route == 'string') { 
+	    myReturn += "route=" + route_id + '&';
+    }  
+
+	if ( typeof arrayin == 'object' && typeof arrayin.route == 'string') { 
 	//({route:"val"})
 		route_id=arrayin.route
-		API = BASEAPI  + "?route=" + route_id;
-	} else if ( typeof arrayin == 'object' && typeof arrayin.trip == 'string') { 
+	    myReturn += "route=" + route_id + '&';
+	} 
+
+//STOP
+
+    if ( typeof arrayin == 'object' && typeof arrayin.stop == 'string') { 
+    //({stop:"val"})
+        stop_id=arrayin.stop
+	    myReturn += "stop=" + stop_id + '&';
+	} 
+
+//TRIP
+	if ( typeof arrayin == 'object' && typeof arrayin.trip == 'string') { 
 	//({trip:"num"})
 		trip_id=arrayin.trip
-		API = BASEAPI  + "?trip=" + trip_id;
+	    myReturn += "trip=" + trip_id + '&';
 	} else 	if (typeof arrayin == 'undefined' ) { 
 	//()
 		// cuz i'm too lazy to handle proper null logic right now. 
 		// planning that when i have prior history, i'' fill from that 
-		API = BASEAPI;
+//		API = BASEAPI;
 	}
+    myReturn = myReturn.replace(/&\s*$/, "");
 	// do we need to worry about whether this is the first and only param on CGI?
-	updatestatus( "Fetching <a href='" + API + "&DEBUG=1' target='_blank'>" + API + "</a>");
+	updatestatus( "Fetching <a href='" + BASEAPI + myReturn + "&DEBUG=1' target='_blank'>" + API + "</a>");
 	//  we can get slick here if we want - if it's all numeric and a certain length
 	// then we can assume its a trip
 	// eles its a route  - might be able to check if a route with a call 
@@ -108,7 +119,6 @@ function apitrips(arrayin)
 		var _route_text_color = '';
 		var _route_long_name = '';
 		var _route_short_name = '';
-        thingsResult.innerHTML += "onclick=\"apitrips({'stop':'"+id+"'});\">"+name+"</a>";
 
 		for (i in myObj) {
 			// use locObj for simpler referential syntax 
@@ -133,14 +143,16 @@ function apitrips(arrayin)
 		  			} 
 					z1 = "<h3>"; 
 
-						if (isThingSaved({ 'stash':"routes", 'id':locObj.route_short_name })){
-		                    z1 += "<a class='btn btn-sm btn-warning' href='#' "
-		  	                    + "onclick=\"deleteThing({'stash':'routes','id':'"+ locObj.route_short_name + "','result':'main1'});\">X</a>";
-						} else {
-		                    z1 += "<a class='btn btn-sm btn-success' href='#' "
-		                        + "onclick=\"saveThing({'stash':'routes','id':'"+ locObj.route_short_name + "','name':'" + locObj.route_long_name + "','result':'main1'});\">+</a>";
-                        }
+					// which button should we display?
+					if (isThingSaved({ 'stash':"routes", 'id':locObj.route_short_name })){
+		                z1 += "<a class='btn btn-sm btn-warning' href='#' "
+		                	+ "onclick=\"deleteThing({'stash':'routes','id':'"+ locObj.route_short_name + "','result':'main1'});\">X</a>";
+					} else {
+		                z1 += "<a class='btn btn-sm btn-success' href='#' "
+		                    + "onclick=\"saveThing({'stash':'routes','id':'"+ locObj.route_short_name + "','name':'" + locObj.route_long_name + "','result':'main1'});\">+</a>";
+                    }
 
+ 					//use standardized display 
  					z1 += routeDisplay({
 						'id':locObj.route_short_name,
 						'name':locObj.route_long_name,
@@ -154,12 +166,24 @@ function apitrips(arrayin)
 						_route_text_color +
 						";background-color:#" +
 						 _route_color +
-						";'>" + "<span class='route_name'>" +
-						_route_short_name +
-						"</span>" + "&nbsp;" +
-						_route_long_name + "<br />" +
+						";'>";
+
+ 					z += routeDisplay({
+						'id':locObj.route_short_name,
+						'name':locObj.route_long_name,
+						'txcolor':locObj.route_text_color,
+						'bgcolor':locObj.route_color
+						})
+
+					//"<span class='route_name'>" +
+					//	_route_short_name +
+					//	"</span>" + "&nbsp;" +
+					//	_route_long_name + 
+					z += "<br />" +
 						_trip_headsign +
-						"<span style='float:right;'>" +
+
+
+					z +=	"<span style='float:right;'>" +
 						"<a class='btn btn-sm btn-light btn-right' href='#' role='button' " + 
 						" onclick=\"apitrips({'trip':'" +  _trip_id    + "'});\">" +
 						 _arrival_time_begin + " - " + _arrival_time_end +
@@ -266,12 +290,11 @@ stopname</a>
 		
 		//now we assign final values to the fields... 
 
-		/*
-		<div class="col-lg-6" id="trip_display">
-        <div class="col-lg-6" id="stop_display">
-		<div class="col-lg-6" id="localstops_display">
-		*/
 		//this would be a good place to sort them by time.
+
+		// 14apr18 rca 
+		//this is the only place i'm using route_id. is there a better way, perhaps
+		// by the length of z1 and z? and shouldn't i give those vars a better name?
 		if (route_id != '') {
 		    document.getElementById("route_display").innerHTML = z1 + z;
 	//           document.getElementById("main2").innerHTML = x;
@@ -287,7 +310,7 @@ stopname</a>
 	    document.getElementById("status").innerHTML = "";
 	}
 }
-xmlhttp.open("GET", API, true);
+xmlhttp.open("GET", BASEAPI + myReturn, true);
 xmlhttp.send();
 }
 
@@ -343,39 +366,39 @@ function resetContact () {
   document.getElementById('showHideTrip').onclick = function() {
     divTest = document.getElementById('trip_display');
     if (divTest.style.display === "none") {
-//        document.getElementById('heading').style.display = 'block';
-        document.getElementById('trip_display').style.display = 'block';
         document.getElementById('route_display').style.display = 'none';
-        // divTest.style.display = 'block';
+        document.getElementById('stop_display').style.display = 'none';
+        document.getElementById('trip_display').style.display = 'block';
     } else {
-        document.getElementById('trip_display').style.display = 'none';
         document.getElementById('route_display').style.display = 'block';
-        // divTest.style.display = "none";
+        document.getElementById('stop_display').style.display = 'block';
+        document.getElementById('trip_display').style.display = 'none';
     }
   }
   //#######
   document.getElementById('showHideRoute').onclick = function() {
     divTest = document.getElementById('route_display');
     if (divTest.style.display === "none") {
-//        document.getElementById('heading').style.display = 'block';
         document.getElementById('route_display').style.display = 'block';
         document.getElementById('stop_display').style.display = 'none';
-        // divTest.style.display = 'block';
+        document.getElementById('trip_display').style.display = 'none';
     } else {
         document.getElementById('route_display').style.display = 'none';
         document.getElementById('stop_display').style.display = 'block';
-        // divTest.style.display = "none";
+        document.getElementById('trip_display').style.display = 'block';
     }
   }
   //#######
   document.getElementById('showHideStop').onclick = function() {
     divTest = document.getElementById('stop_display');
     if (divTest.style.display === "none") {
-//        document.getElementById('heading').style.display = 'block';
+        document.getElementById('route_display').style.display = 'none';
         document.getElementById('stop_display').style.display = 'block';
         document.getElementById('trip_display').style.display = 'none';
+//        document.getElementById('heading').style.display = 'block';
         // divTest.style.display = 'block';
     } else {
+        document.getElementById('route_display').style.display = 'block';
         document.getElementById('stop_display').style.display = 'none';
         document.getElementById('trip_display').style.display = 'block';
         // divTest.style.display = "none";
@@ -385,12 +408,9 @@ function resetContact () {
   document.getElementById('showHideContainer').onclick = function() {
     divTest = document.getElementById('heading');
     if (divTest.style.display === "none") {
-//        document.getElementById('heading').style.display = 'block';
         document.getElementById('heading').style.display = 'block';
-        // divTest.style.display = 'block';
     } else {
         document.getElementById('heading').style.display = 'none';
-        // divTest.style.display = "none";
     }
   }
   //#######
@@ -406,13 +426,11 @@ function resetContact () {
         // divTest.style.display = "none";
     }
   }
-  //#######
-
-
 }
-
+//#########################################################3
+// set up 'heading' element with the saved stops and routes.  
 function resetHead () {
     fetchThings({'stash':'routes','result':'main1'});
+    fetchThings({'stash':'stops','result':'main2'});
 }
-
 

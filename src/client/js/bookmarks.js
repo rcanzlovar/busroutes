@@ -75,7 +75,7 @@ function saveThing(e){
 function deleteThing(e){
   if ( typeof e == 'object' && typeof e.id == 'string') { id = e.id }
   if ( typeof e == 'object' && typeof e.stash == 'string') { stash = e.stash }
-  if ( typeof e == 'object' && typeof e.stash == 'result') { result = e.result }
+  if ( typeof e == 'object' && typeof e.result == 'string') { result = e.result }
   // Get bookmarks from localStorage
   var things = JSON.parse(localStorage.getItem(stash));
   // Loop through the bookmarks
@@ -125,10 +125,19 @@ function fetchThings(e){
                                   "</h3>"+
                                   "</div>";
 */
+if (stash == 'routes') {
     thingsResult.innerHTML += "<div class='well'>"
           +"<a class='btn btn-sm btn-secondary' href='#'  "
           +"onclick=\"apitrips('"+id+"');\">"+id+'&nbsp;'+name+"</a>"
-          +"</div";
+          +"</div>";
+
+}
+if (stash == 'stops') {
+    thingsResult.innerHTML += "<div class='well'>"
+          +"<a class='btn btn-sm btn-primary' href='#'  "
+          +"onclick=\"apitrips({'stop':'"+id+"'});\">"+'&nbsp;'+name+"</a>"
+          +"</div>";
+}
   }
 }
 

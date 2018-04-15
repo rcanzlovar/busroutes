@@ -9,7 +9,7 @@
             "command": "copy-item -recurse -force client/*  -destination c:/users/public/htdocs/busroutes",
             "group": {
                 "kind": "build",
-                "isDefault": false
+                "isDefault": true
             }
         },
         {
@@ -17,8 +17,7 @@
             "type": "shell",
             "command": "copy-item -recurse -force api/*  -destination c:/users/public/htdocs/busroutes/api",
             "group": {
-                "kind": "build",
-                "isDefault": true
+                "kind": "build"
             }
         }
     ]
