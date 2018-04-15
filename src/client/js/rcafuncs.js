@@ -72,7 +72,8 @@ function proc_params(arrayin) {
 	}
     myReturn = myReturn.replace(/&\s*$/, "");
 	// do we need to worry about whether this is the first and only param on CGI?
-	updatestatus( "Fetching <a href='" + BASEAPI + myReturn + "&DEBUG=1' target='_blank'>" + API + "</a>");
+	updatestatus( "Fetching <a href='" + BASEAPI + myReturn + "&DEBUG=1' target='_blank'>" + BASEAPI + myReturn + "</a>");
+	return myReturn;
 	//  we can get slick here if we want - if it's all numeric and a certain length
 	// then we can assume its a trip
 	// eles its a route  - might be able to check if a route with a call 
@@ -88,13 +89,14 @@ function updatestatus(status) {
 //##############################################
 
 function trimtrack(string) {
+	// some have "gate x" "track z"
   return string.replace(/(track|gate).+$/i, ''); // $& means the whole matched string
 }
 //##############################################
 //////////////////////////////////////////////////////////////////////////////////////////////////
 function apitrips(arrayin)
 {
-	proc_params(arrayin);
+	var returnParams = proc_params(arrayin);
 	var xmlhttp = new XMLHttpRequest();
 	xmlhttp.onreadystatechange = function() {
 	if (this.readyState == 4 && this.status == 200) {
@@ -162,33 +164,32 @@ function apitrips(arrayin)
 
 					z1 += "</h3>";
 
-					z += "<li class='trip_display' style='color:#" +
-						_route_text_color +
-						";background-color:#" +
-						 _route_color +
-						";'>";
-
- 					z += routeDisplay({
-						'id':locObj.route_short_name,
-						'name':locObj.route_long_name,
-						'txcolor':locObj.route_text_color,
-						'bgcolor':locObj.route_color
-						})
+					z += "<li class='trip_display'>";
+//					style='color:#" +
+//						_route_text_color +
+//						";background-color:#" +
+//						 _route_color +
+//						";'>";
 
 					//"<span class='route_name'>" +
 					//	_route_short_name +
 					//	"</span>" + "&nbsp;" +
 					//	_route_long_name + 
-					z += "<br />" +
-						_trip_headsign +
-
-
 					z +=	"<span style='float:right;'>" +
 						"<a class='btn btn-sm btn-light btn-right' href='#' role='button' " + 
 						" onclick=\"apitrips({'trip':'" +  _trip_id    + "'});\">" +
 						 _arrival_time_begin + " - " + _arrival_time_end +
-						 "</a></span>" +
-						 "</li>";
+						 "</a></span>";
+
+ 					z += routeDisplay({
+						'id':locObj.route_short_name,
+						'name':locObj.route_long_name + "<br />" +
+						    _trip_headsign,
+						'txcolor':locObj.route_text_color,
+						'bgcolor':locObj.route_color
+						});
+ 					z += "</li>"
+
 /*
 
 					 <li class='trip_display' id='123'
@@ -208,13 +209,12 @@ function apitrips(arrayin)
 			    _route_short_name = locObj["route_short_name"] || '';
 			    _route_long_name  = locObj["route_long_name"]  || '';
 			    _route_color      = locObj["route_color"]      || '';
-			    _trip_headsign    = locObj.trip_headsign;
+			    _trip_headsign    = locObj["trip_headsign"]    || '';
 			    _route_text_color = locObj["route_text_color"] || '';
 			    _trip_id          = locObj["trip_id"]          || '';
 				_arrival_time_begin = locObj.departure_time;
 			}
   			console.log(" again trip headsign " + locObj.trip_headsign);
-			    _trip_headsign    = locObj["trip_headsign"]    || '';
 
 			// update this each time so that when we have a change, 
 			//we know what the value was on the last one... 
@@ -310,7 +310,7 @@ stopname</a>
 	    document.getElementById("status").innerHTML = "";
 	}
 }
-xmlhttp.open("GET", BASEAPI + myReturn, true);
+xmlhttp.open("GET", BASEAPI + returnParams, true);
 xmlhttp.send();
 }
 
