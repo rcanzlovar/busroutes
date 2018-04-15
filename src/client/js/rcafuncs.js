@@ -165,16 +165,9 @@ function apitrips(arrayin)
 					z1 += "</h3>";
 
 					z += "<li class='trip_display'>";
-//					style='color:#" +
-//						_route_text_color +
-//						";background-color:#" +
-//						 _route_color +
-//						";'>";
 
-					//"<span class='route_name'>" +
-					//	_route_short_name +
-					//	"</span>" + "&nbsp;" +
-					//	_route_long_name + 
+					// put this first so it can float to the top right 
+					// and make the other text flow around it
 					z +=	"<span style='float:right;'>" +
 						"<a class='btn btn-sm btn-light btn-right' href='#' role='button' " + 
 						" onclick=\"apitrips({'trip':'" +  _trip_id    + "'});\">" +
@@ -183,8 +176,8 @@ function apitrips(arrayin)
 
  					z += routeDisplay({
 						'id':locObj.route_short_name,
-						'name':locObj.route_long_name + "<br />" +
-						    _trip_headsign,
+						'name':locObj.route_long_name + "<br /><em>" +
+						    _trip_headsign + "</em>",
 						'txcolor':locObj.route_text_color,
 						'bgcolor':locObj.route_color
 						});
@@ -311,6 +304,30 @@ stopname</a>
 	}
 }
 xmlhttp.open("GET", BASEAPI + returnParams, true);
+xmlhttp.send();
+}
+
+/##############################################
+
+function trimtrack(string) {
+	// some have "gate x" "track z"
+  return string.replace(/(track|gate).+$/i, ''); // $& means the whole matched string
+}
+//##############################################
+//////////////////////////////////////////////////////////////////////////////////////////////////
+function apigeo(arrayin)
+{
+	var returnParams = proc_params(arrayin);
+	var xmlhttp = new XMLHttpRequest();
+	xmlhttp.onreadystatechange = function() {
+	if (this.readyState == 4 && this.status == 200) {
+		var myObj = JSON.parse(this.responseText);
+		console.log(myObj + "my object");
+
+
+	}
+}
+xmlhttp.open("GET", BASEAPI + "geo/" + returnParams, true);
 xmlhttp.send();
 }
 
