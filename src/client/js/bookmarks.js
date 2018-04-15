@@ -102,8 +102,6 @@ function fetchThings(e){
   if(localStorage.getItem(stash) === null){
     // Init array
     var things = [];
-    // Add to array
-    things.push(thing);
     // Set to localStorage
     localStorage.setItem(stash, JSON.stringify(things));
   } 
@@ -111,7 +109,6 @@ function fetchThings(e){
   var things = JSON.parse(localStorage.getItem(stash));
   // Get output id
   var thingsResult = document.getElementById(result);
-
   // Build output
   thingsResult.innerHTML = '';
   for(var i = 0; i < things.length; i++){
