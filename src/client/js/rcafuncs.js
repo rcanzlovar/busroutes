@@ -45,6 +45,13 @@ function proc_params(arrayin) {
 	    myReturn += "route=" + route_id + '&';
     }  
 
+    // as of what time do we run this, if not now? 
+	if ( typeof arrayin == 'object' && typeof arrayin.departure == 'string') { 
+	//({departure:"val"})
+	    myReturn += "departure=" + arrayin.departure + '&';
+	} 
+
+	
 	if ( typeof arrayin == 'object' && typeof arrayin.route == 'string') { 
 	//({route:"val"})
 		route_id=arrayin.route
