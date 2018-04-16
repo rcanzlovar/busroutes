@@ -4,11 +4,10 @@
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  */
     $DEBUG = isset($_GET['DEBUG']) ? $_GET['DEBUG']  : 0; 
 
-    require '../inc/dbparams.inc.php';  // defines $dsn, $username, $password
-    $dsn = "mysql:host=127.0.0.1;dbname=$dbname";
+    // defines $dsn, $dbname, $username, $password
+    require '../apitrips/inc/dbparams.inc.php';  
     $db = new PDO($dsn, $username, $password);
     $db->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_OBJ);
-
 
     if (isset($_GET['q'])) {
          [$lat, $lon] = explode(",",$_GET['q']);
