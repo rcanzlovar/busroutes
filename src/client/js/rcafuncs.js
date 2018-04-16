@@ -1,18 +1,24 @@
 // rcafuncs.js - functions for busroutes
 // 
+//	scp -r index.html  js/ anzlovar@gator3290.hostgator.com:public_html/busroutes/ 
 
 var SERVER_HOST = '192.168.23.18'; //ip address at home
 //    SERVER_HOST = '192.168.20.101'; //ip address at work
     SERVER_HOST = '127.0.0.1'; //ip address at work
 //   SERVER_HOST = 'rcanzlovar.com'; //ip address at work
 
-var BASEAPI = 'http://' + SERVER_HOST + '/busroutes/api/'; 
+var BASEAPI = 'http://' + SERVER_HOST + '/busroutes/'; 
+
+
+//$_GET['DEBUG'] ? $_GET['DEBUG'] : 1;
+DEBUG = 1;
 
 // '/rtd-routes/api-trips.php';
 var API = '';
 
 var route_id = '';
 var trip_id = '';
+var departure_time = '';
 var stop_id = '';
 
 ///////////////////////////////////////////////////////////
@@ -48,6 +54,7 @@ function proc_params(arrayin) {
     // as of what time do we run this, if not now? 
 	if ( typeof arrayin == 'object' && typeof arrayin.departure == 'string') { 
 	//({departure:"val"})
+	    departure_time = arrayin.departure;
 	    myReturn += "departure=" + arrayin.departure + '&';
 	} 
 
@@ -58,6 +65,14 @@ function proc_params(arrayin) {
 	    myReturn += "route=" + route_id + '&';
 	} 
 
+//departure
+
+    if ( typeof arrayin == 'object' && typeof arrayin.departure == 'string') { 
+    //({stop:"val"})
+	    myReturn += "departure=" + arrayin.departure + '&';
+	} 
+
+
 //STOP
 
     if ( typeof arrayin == 'object' && typeof arrayin.stop == 'string') { 
@@ -65,6 +80,7 @@ function proc_params(arrayin) {
         stop_id=arrayin.stop
 	    myReturn += "stop=" + stop_id + '&';
 	} 
+
 
 //TRIP
 	if ( typeof arrayin == 'object' && typeof arrayin.trip == 'string') { 
@@ -79,19 +95,19 @@ function proc_params(arrayin) {
 	}
     myReturn = myReturn.replace(/&\s*$/, "");
 	// do we need to worry about whether this is the first and only param on CGI?
-	updatestatus( "Fetching <a href='" + BASEAPI + myReturn + "&DEBUG=1' target='_blank'>" + BASEAPI + myReturn + "</a>");
+//	updatestatus( "Fetching <a href='" + BASEAPI + myReturn + "&DEBUG=1' target='_blank'>" + BASEAPI + myReturn + "</a>");
 	return myReturn;
 	//  we can get slick here if we want - if it's all numeric and a certain length
 	// then we can assume its a trip
 	// eles its a route  - might be able to check if a route with a call 
 }
-
-
+//##############################################
+function addstatus(status) {
+	document.getElementById("status").innerHTML += status;
+}
 //##############################################
 function updatestatus(status) {
 	document.getElementById("status").innerHTML = status;
-//	scp -r index.html  js/ anzlovar@gator3290.hostgator.com:public_html/busroutes/ 
-
 }
 //##############################################
 
@@ -104,19 +120,21 @@ function trimtrack(string) {
 function apitrips(arrayin)
 {
 	var returnParams = proc_params(arrayin);
+	API = BASEAPI + 'apitrips/' + returnParams;
+	updatestatus( "Fetching <a href='" + API + "&DEBUG=1' target='_blank'>" + API + "</a>");
 	var xmlhttp = new XMLHttpRequest();
 	xmlhttp.onreadystatechange = function() {
 	if (this.readyState == 4 && this.status == 200) {
 		var myObj = JSON.parse(this.responseText);
 
 		var i, j = '';
-		var x,y,z; // some collector varia:write
-		var x = '<ul>';
-		var x1 = '';
-		var y = '<ul>';
-		var y1 = '';
-		var z = "<ul>";
-		var z1 = '';
+
+		var route_display = '<ul>'; // was x 
+		var route_display_head = '';
+		var stop_display = '<ul>';
+		var stop_display_head = '';//was y
+		var trip_display = "<ul>"; //was z
+		var trip_display_head = '';
 
 		var h;  //headers
 
@@ -132,63 +150,66 @@ function apitrips(arrayin)
 		for (i in myObj) {
 			// use locObj for simpler referential syntax 
 			locObj = myObj[i];		
-  			console.log(" trip id " + locObj.trip_id);
-  			console.log(" trip headsign " + locObj.trip_headsign);
+			if (DEBUG) {
+			    addstatus( "loop=" + i + ":<br>" );
+			    console.log(locObj);
+			}
+
+
 			_trip_headsign = locObj.trip_headsign;
-			console.log(locObj);
 
 //Trippin! - build a trip profile because the trip_id has changed
             // x has information about routes - small potential bug in 
             // because  
 			if (_trip_id != locObj.trip_id ) {
-                document.getElementById("status").innerHTML += _trip_id + ",<br>";
-			    if (_trip_id) {
-//    				z += "<li data-role=\"fieldcontain\" class=\"ui-field-contain ui-last-child\">";
+				addstatus( "trip_id=" + _trip_id + ",<br>");
+/// ??? 			    if (_trip_id) {
+// trip_display += "<li data-role=\"fieldcontain\" class=\"ui-field-contain ui-last-child\">";
 					var saveroute = function(e) { 
 						if ( typeof e == 'object' && typeof e.id == 'string') { id = e.id }
 						if ( typeof e == 'object' && typeof e.name == 'string') { id = e.id }
 						if ( typeof e == 'object' && typeof e.name == 'string') { name = e.name }
 						saveThing({'stash':'routes','id': id ,'name': namee ,'result':'main1'});
 		  			} 
-					z1 = "<h3>"; 
+					trip_display_head = "<h3>"; 
 
 					// which button should we display?
 					if (isThingSaved({ 'stash':"routes", 'id':locObj.route_short_name })){
-		                z1 += "<a class='btn btn-sm btn-warning' href='#' "
+		                trip_display_head += "<a class='btn btn-sm btn-warning' href='#' "
 		                	+ "onclick=\"deleteThing({'stash':'routes','id':'"+ locObj.route_short_name + "','result':'main1'});\">X</a>";
 					} else {
-		                z1 += "<a class='btn btn-sm btn-success' href='#' "
+		                trip_display_head += "<a class='btn btn-sm btn-success' href='#' "
 		                    + "onclick=\"saveThing({'stash':'routes','id':'"+ locObj.route_short_name + "','name':'" + locObj.route_long_name + "','result':'main1'});\">+</a>";
                     }
 
  					//use standardized display 
- 					z1 += routeDisplay({
+ 					trip_display_head += routeDisplay({
 						'id':locObj.route_short_name,
 						'name':locObj.route_long_name,
 						'txcolor':locObj.route_text_color,
 						'bgcolor':locObj.route_color
 						})
 
-					z1 += "</h3>";
+					trip_display_head += "</h3>";
 
-					z += "<li class='trip_display'>";
+					trip_display += "<li class='trip_display'>";
 
 					// put this first so it can float to the top right 
 					// and make the other text flow around it
-					z +=	"<span style='float:right;'>" +
+					trip_display +=	"<span style='float:right;'>" +
 						"<a class='btn btn-sm btn-light btn-right' href='#' role='button' " + 
 						" onclick=\"apitrips({'trip':'" +  _trip_id    + "'});\">" +
 						 _arrival_time_begin + " - " + _arrival_time_end +
 						 "</a></span>";
 
- 					z += routeDisplay({
+ 					trip_display += routeDisplay({
 						'id':locObj.route_short_name,
 						'name':locObj.route_long_name + "<br /><em>" +
 						    _trip_headsign + "</em>",
 						'txcolor':locObj.route_text_color,
 						'bgcolor':locObj.route_color
 						});
- 					z += "</li>"
+ 					trip_display += "</li>"
 
 /*
 
@@ -201,7 +222,7 @@ function apitrips(arrayin)
 					</li>
 
 */
-			    }
+/// ???			    }
 			    console.log("tripsign" + locObj.trip_headsign);
 
 				//set up for the next iteration... 
@@ -220,26 +241,32 @@ function apitrips(arrayin)
 			//we know what the value was on the last one... 
 			_arrival_time_end = locObj.arrival_time;
 
-  			// Build trip index 
-  			//x build the links with the stops
-//  			x1 += "<h3>" + locObj.stop_name + "</h3>";
 
-	        x1 = "<h3><span class='route_name' "  
+//ROUTE 
+
+	        route_display_head = "<h3><span class='route_name' "  
 	            + " style=\"color:#" + locObj.route_text_color 
                 + ";background-color:#" + locObj.route_color 
                 + ";\">" 
 	            + locObj.route_short_name + "</span>&nbsp;" 
-	            + locObj.route_long_name	 + " -&gt; " + locObj.trip_headsign + "</h3>";	
+	            + locObj.route_long_name	 + " to " + locObj.trip_headsign;
+
+	        route_display_head += "</h3>";	
+	        if (departure_time != '') {
+	           route_display_head += " at " + departure_time;
+	        }
 
 			//id=stop15145
-            x += "<li class='trip_display' id='stop" + locObj.stop_id + "'>"
+            route_display += "<li class='trip_display' id='stop" + locObj.stop_id + "'>"
                 + "<a class='btn btn-sm btn-light btn-right' href='#' role='button'>" 
 		        + locObj.arrival_time 
                 + "</a>" 
 		        + "<a class='btn btn-sm btn-outline' href='#' role='button' " 
-		        + " onclick=\"apitrips({'stop':'" + locObj.stop_id + "'});\">"
+		        + " onclick=\"apitrips({'stop':'" + locObj.stop_id + "'" 
+		        + ",'departure':'" + locObj.departure_time + "'});\">"
 	            + locObj.stop_name + "</a>" + "</li>";
 
+// STOP OR I'll....
 /*
   <li>
     <a class="btn btn-lg btn-light btn-right" href="#" role="button">10:12</a>
@@ -256,22 +283,32 @@ stopname</a>
 
 
             // 20180411 rca added button for adding or detracgin 
-            y1  =  "<h3>"; 
+            stop_display_head  =  "<h3>"; 
 			if (isThingSaved({ 'stash':"stops`", 'id':locObj.stop_id })){
-                y1 += "<a class='btn btn-sm btn-warning' href='#' "
+                stop_display_head += "<a class='btn btn-sm btn-warning' href='#' "
                     + "onclick=\"deleteThing({'stash':'stops','id':'" + locObj.stop_id + "','result':'main2'});\">X</a>";
 			} else {
-                y1 += "<a class='btn btn-sm btn-success' href='#' "
+                stop_display_head += "<a class='btn btn-sm btn-success' href='#' "
                     + "onclick=\"saveThing({'stash':'stops','id':'"+ locObj.stop_id + "','name':'" + locObj.stop_name + "','result':'main2'});\">+</a>";
             }
-			y1 +=  trimtrack(locObj.stop_name);
-            y1  +=  "</h3>"; 
+			stop_display_head +=  trimtrack(locObj.stop_name);
+            stop_display_head  +=  "</h3>"; 
 
-            y += "<li>"  
-                + "<a class='btn btn-sm btn-info btn-right' href='#' role='button' " 
+            stop_display += "<li>";
+            // check for departure time, if we have specified a departure time,
+            //then we should check the time, make the ones that are technically dead
+            //red-colored so we know not to count on it
+            if (departure_time != '' && departure_time > locObj.departure) {
+            	stop_display += "<a class='btn btn-sm btn-danger btn-right' href='#' role='button' " 
                 + "onclick=\"apitrips({'trip':'" + locObj.trip_id    + "'});\">" 
                 + locObj.departure_time + "</a>" 
-                + "<a class='btn btn-sm btn-secondary btn-wide' href='#' role='button' " 
+            } else {
+            	stop_display += "<a class='btn btn-sm btn-info btn-right' href='#' role='button' " 
+                + "onclick=\"apitrips({'trip':'" + locObj.trip_id    + "'});\">" 
+                + locObj.departure_time + "</a>" 
+            }
+
+            	stop_display += "<a class='btn btn-sm btn-secondary btn-wide' href='#' role='button' " 
                 + " onclick=\"apitrips({'route':'" + locObj.route_short_name + "'});\">" 
  				+ routeDisplay({
 						'id':locObj.route_short_name,
@@ -284,9 +321,9 @@ stopname</a>
 			// needed for getting the last arrival time in a trip before starting the next one
 		}//["0"].trip_id
 
-		x += "</ul>";
-		y += "</ul>";
-		z += "</ul>";
+		route_display += "</ul>";
+		stop_display += "</ul>";
+		trip_display += "</ul>";
 		
 		//now we assign final values to the fields... 
 
@@ -294,27 +331,27 @@ stopname</a>
 
 		// 14apr18 rca 
 		//this is the only place i'm using route_id. is there a better way, perhaps
-		// by the length of z1 and z? and shouldn't i give those vars a better name?
+		// by the length of trip_display_head and z? and shouldn't i give those vars a better name?
 		if (route_id != '') {
-		    document.getElementById("route_display").innerHTML = z1 + z;
+		    document.getElementById("route_display").innerHTML = route_display_head + route_display;
 	//           document.getElementById("main2").innerHTML = x;
 		}
 
 		if (stop_id != '') {
-		    document.getElementById("stop_display").innerHTML = y1 + y;
+		    document.getElementById("stop_display").innerHTML = stop_display_head + stop_display;
 		}
 		
 		if (trip_id != '') {
-		    document.getElementById("trip_display").innerHTML =  x1 + x;
+		    document.getElementById("trip_display").innerHTML =  trip_display_head + trip_display;
 		}
-	    document.getElementById("status").innerHTML = "";
+	    updatestatus("");
 	}
 }
-xmlhttp.open("GET", BASEAPI + returnParams, true);
+xmlhttp.open("GET", API + returnParams, true);
 xmlhttp.send();
 }
 
-/##############################################
+//##############################################
 
 function trimtrack(string) {
 	// some have "gate x" "track z"
@@ -324,17 +361,41 @@ function trimtrack(string) {
 //////////////////////////////////////////////////////////////////////////////////////////////////
 function apigeo(arrayin)
 {
+
+	var stop_display = '';
+	var stop_display_head = "<h3>Nearby stops...</h3>";
+	
 	var returnParams = proc_params(arrayin);
+	API = BASEAPI + 'apigeo/' + returnParams;
+	updatestatus( "Fetching <a href='" + API + "&DEBUG=1' target='_blank'>" + API + "</a>");
 	var xmlhttp = new XMLHttpRequest();
 	xmlhttp.onreadystatechange = function() {
 	if (this.readyState == 4 && this.status == 200) {
 		var myObj = JSON.parse(this.responseText);
-		console.log(myObj + "my object");
 
 
+		for (i in myObj) {
+			// use locObj for simpler referential syntax 
+			locObj = myObj[i];		
+  			console.log(" stop id " + locObj.stop_id);
+			console.log(locObj);
+
+            stop_display += "<li class='trip_display' id='stop" + locObj.stop_id + "'>"
+                + "<a class='btn btn-sm btn-light btn-right' " 
+				+ " href='http://maps.google.com/maps?q=" + locObj.stop_lat + "," + locObj.stop_lon 
+				+ " role='button'>map</a>" 
+		        + "<a class='btn btn-sm btn-outline' href='#' role='button' " 
+		        + " onclick=\"apitrips({'stop':'" + locObj.stop_id + "' });\">"
+	            + locObj.stop_name + "</a>" 
+	            + "</li>";
+		}
+		if (stop_display != '') {
+		    document.getElementById("stop_display").innerHTML = stop_display_head + stop_display;
+		}
+	    updatestatus("");
 	}
 }
-xmlhttp.open("GET", BASEAPI + "geo/" + returnParams, true);
+xmlhttp.open("GET", API, true);
 xmlhttp.send();
 }
 
@@ -430,7 +491,11 @@ function resetContact () {
   }
   //#######
   document.getElementById('showHideContainer').onclick = function() {
+  	  var elem = document.getElementById("showHideContainer");
+  	  console.log("this hide container thing" + document.getElementById("showHideContainer"));
+
     divTest = document.getElementById('heading');
+
     if (divTest.style.display === "none") {
         document.getElementById('heading').style.display = 'block';
     } else {
