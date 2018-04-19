@@ -398,7 +398,9 @@ function apiw3w(arrayin)
     console.log(arrayin);
 
 	var returnParams = proc_geo_params(arrayin);
-
+    if (returnParams	== '') { 
+    	return({'error':"no input"})
+    }
     console.log(returnParams);
 	//FORWARD
 //	var MYAPI = "https://api.what3words.com/v2/forward?";
@@ -410,15 +412,12 @@ function apiw3w(arrayin)
 // add what3words field
 // ALTER TABLE `stops` ADD `what3words` VARCHAR(30) NULL DEFAULT NULL AFTER `wheelchair_boarding`, ADD UNIQUE `what3words_index` (`what3words`(30));
 // UPDATE `stops` SET `what3words` = 'this.that.other' WHERE `stops`.`stop_lat` = $stop_lat AND stop_lon = $stop_lon
-
-
-
-
     var MYAPI = "https://api.what3words.com/v2/reverse?";
 	MYAPI += "key=11DTQNS9&";
 	MYAPI += "format=json&display=full&";
 	if (typeof returnParams == 'string') { 
 	    MYAPI += returnParams; 
+	    console.log("MYAPI" + MYAPI); 
     } else if ( typeof returnParams == 'object' && typeof arrayin.error == 'string') { 
     	console.log (returnParams.error);
     	// bail here?
@@ -429,7 +428,6 @@ function apiw3w(arrayin)
 	var stop_display = '';
 	var stop_display_head = "<h3><a href='http://what3words.com/'>what3words</a></h3>";
 
-
 	updatestatus( "Fetching <a href='" + MYAPI + "&DEBUG=1' target='_blank'>" + MYAPI + "</a>");
 
 	var xmlhttp = new XMLHttpRequest();
@@ -439,10 +437,18 @@ function apiw3w(arrayin)
 
 //        if (myObj.status.code ==  200) {
 			    console.log(myObj.words);
+
 			    console.log(myObj.crs.properties.href);
+			    console.log(myObj.map);
+
+			    console.log("to string " + myObj.bounds.toString());
+			    console.log(myObj.bounds.northeast);
+			    console.log(myObj.bounds.northwest);
+			    console.log(myObj.bounds.southeast);
+			    console.log(myObj.bounds.southwest);
+
 			    console.log(myObj.geometry.lat);
 			    console.log(myObj.geometry.lng);
-			    console.log(myObj.map);
 			    console.log(myObj);
 
 //        }
@@ -459,8 +465,8 @@ function apiw3w(arrayin)
 
 */
 
-	    updatestatus("");
-	    return (myObj.words);
+	    updatestatus(myObj.words);
+	    return(myObj.words);
 	}
 }
 xmlhttp.open("GET", MYAPI, true);
@@ -488,6 +494,7 @@ function apigeo(arrayin)
 			locObj = myObj[i];		
   			console.log(" stop id " + locObj.stop_id);
 			console.log(locObj);
+			console.log(apiw3w({'lat':locObj.stop_lat,'lon':locObj.stop_lon}));
 
             stop_display += "<span class='stop_display' id='stop" + locObj.stop_id + "'>"
                 + "<a class='btn btn-sm btn-light btn-right' " 
@@ -495,8 +502,15 @@ function apigeo(arrayin)
 				+ " role='button'>map</a>" 
 		        + "<a class='btn btn-sm btn-outline' href='#' role='button' " 
 		        + " onclick=\"apitrips({'stop':'" + locObj.stop_id + "' });\">"
-	            + locObj.stop_name + "</a>" 
-	            + apiw3w({'lat':myObj.stoplat,'lon':myObj.stop_lon})
+	            + locObj.stop_name  + " "
+
+// 18apr18 rca 
+// this works but i want to have something that will put this into a what3words cache table wiht the 
+//w3w string as the main key, and make it so I cna use that for joining in SQL commands 
+
+//	            + "<a class='btn btn-sm btn-danger' href='#' onclick=\"\">" + apiw3w({'lat':  locObj.stop_lat  ,'lon': locObj.stop_lon  }) + "</a>";
+	            + apiw3w({'lat':locObj.stop_lat,'lon':locObj.stop_lon})
+	            + "</a>" 
 	            + "</span>";
 		}
 		if (stop_display != '') {
@@ -557,7 +571,8 @@ function resetContact () {
             of other versions in PHP. This is \
           showcasing a full stack Javascript project. </p><p>Please contact me if this interests you. </p>\
           Source code at <a href='http://github.com/rcanzlovar/busroutes'>github.com/rcanzlovar/busroutes</a>\
-	<a href='http://rcanzlovar.com/'><img src='img/bobpic.jpg' alt='on to my website...'> </a>";
+	<a href='http://rcanzlovar.com/'><img src='img/bobpic.jpg' alt='on to my website...'> </a>\
+	<a href=http://what3words.com'><img	src='img/w3w_logo.svg' alt='what 3 word'></a>";
 
   //#######
   document.getElementById('showHideTrip').onclick = function() {
@@ -666,3 +681,13 @@ function trimtrack(string) {
 			+ 	 "</a></span>" );
  }
  //######################################################
+ /*
+
+GEOGCS["WGS 84",DATUM["WGS_1984",SPHEROID["WGS 84",6378137,298.257223563,AUTHORITY["EPSG","7030"]],AUTHORITY["EPSG","6326"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["degree",0.01745329251994328,AUTHORITY["EPSG","9122"]],AUTHORITY["EPSG","4326"]]
+
+
+
+
+
+
+ */
