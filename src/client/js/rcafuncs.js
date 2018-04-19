@@ -2,6 +2,17 @@
 // 
 //	scp -r index.html  js/ anzlovar@gator3290.hostgator.com:public_html/busroutes/ 
 
+// 16 apr 18 added funcionality for apigo so that now i can look things up by 
+// lat/long (?q=38,-105 or ?lat=38&lon=-105) or stop=123)
+// need to add  the what 3 woords fnctionality 
+
+// 17apr18 rca 
+// what3words support - 
+//GET https://api.what3words.com/v2/forward?addr=descriptive.wriggle.clipped&display=full&format=json&key=11DTQNS9
+//
+//GET https://api.what3words.com/v2/reverse?coords=51.521251,-0.203586&display=full&format=json&key=11DTQNS9
+
+
 var SERVER_HOST = '192.168.23.18'; //ip address at home
 //    SERVER_HOST = '192.168.20.101'; //ip address at work
     SERVER_HOST = '127.0.0.1'; //ip address at work
@@ -12,14 +23,37 @@ var BASEAPI = 'http://' + SERVER_HOST + '/busroutes/';
 
 //$_GET['DEBUG'] ? $_GET['DEBUG'] : 1;
 DEBUG = 1;
+if (DEBUG) { console.log("DEBUG TURNED ON IN rcafuncs.js"); }
 
 // '/rtd-routes/api-trips.php';
 var API = '';
 
-var route_id = '';
-var trip_id = '';
 var departure_time = '';
+var route_id = '';
 var stop_id = '';
+var stop_lat = '';
+var stop_lon = '';
+var trip_id = '';
+
+// proc_geo_params - look for lat and lon parameters and put them into a form that 
+// is usable by ... whatever...
+// what3words wants 'coords=32-105'
+// google uses g=32,-105
+function proc_geo_params(arrayin) {
+	var returnParams = '&';
+	if ( typeof arrayin == 'object' && typeof arrayin.return == 'string' ) { 
+		returnVar = arrayin.return;
+	} else {
+		returnVar = 'coords';
+	}
+
+	if ( typeof arrayin == 'object' && typeof arrayin.lat == 'string' && typeof arrayin.lon == 'string' ) { 
+		returnParams = returnVar + '=' + arrayin.lat + ',' + arrayin.lon + '&';
+		return (returnParams);
+	} else {
+		return ({'error':'ERROR need lat and lon'});
+	}
+}
 
 ///////////////////////////////////////////////////////////
 // parse out parameters
@@ -30,6 +64,7 @@ function proc_params(arrayin) {
 //
 // we can take in a scalar, an array or an object
 //
+// start with the ? add things& and then chop the trailing & at the end 
     var myReturn = '?';
 
 //ROUTE
@@ -57,7 +92,6 @@ function proc_params(arrayin) {
 	    departure_time = arrayin.departure;
 	    myReturn += "departure=" + arrayin.departure + '&';
 	} 
-
 	
 	if ( typeof arrayin == 'object' && typeof arrayin.route == 'string') { 
 	//({route:"val"})
@@ -66,21 +100,17 @@ function proc_params(arrayin) {
 	} 
 
 //departure
-
     if ( typeof arrayin == 'object' && typeof arrayin.departure == 'string') { 
     //({stop:"val"})
 	    myReturn += "departure=" + arrayin.departure + '&';
 	} 
 
-
 //STOP
-
     if ( typeof arrayin == 'object' && typeof arrayin.stop == 'string') { 
     //({stop:"val"})
         stop_id=arrayin.stop
 	    myReturn += "stop=" + stop_id + '&';
 	} 
-
 
 //TRIP
 	if ( typeof arrayin == 'object' && typeof arrayin.trip == 'string') { 
@@ -100,20 +130,6 @@ function proc_params(arrayin) {
 	//  we can get slick here if we want - if it's all numeric and a certain length
 	// then we can assume its a trip
 	// eles its a route  - might be able to check if a route with a call 
-}
-//##############################################
-function addstatus(status) {
-	document.getElementById("status").innerHTML += status;
-}
-//##############################################
-function updatestatus(status) {
-	document.getElementById("status").innerHTML = status;
-}
-//##############################################
-
-function trimtrack(string) {
-	// some have "gate x" "track z"
-  return string.replace(/(track|gate).+$/i, ''); // $& means the whole matched string
 }
 //##############################################
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -141,6 +157,7 @@ function apitrips(arrayin)
 		var _trip_id = '';
 		var _trip_headsign = '';
 		var _arrival_time_begin = '';
+		var _arrival_time_end = '';
 		var _route_id = '';
 		var _route_color = '';
 		var _route_text_color = '';
@@ -156,59 +173,59 @@ function apitrips(arrayin)
 			}
 
 
-			_trip_headsign = locObj.trip_headsign;
+//			_trip_headsign = locObj.trip_headsign;
 
 //Trippin! - build a trip profile because the trip_id has changed
             // x has information about routes - small potential bug in 
             // because  
 			if (_trip_id != locObj.trip_id ) {
 				addstatus( "trip_id=" + _trip_id + ",<br>");
-/// ??? 			    if (_trip_id) {
 // trip_display += "<li data-role=\"fieldcontain\" class=\"ui-field-contain ui-last-child\">";
-					var saveroute = function(e) { 
-						if ( typeof e == 'object' && typeof e.id == 'string') { id = e.id }
-						if ( typeof e == 'object' && typeof e.name == 'string') { id = e.id }
-						if ( typeof e == 'object' && typeof e.name == 'string') { name = e.name }
-						saveThing({'stash':'routes','id': id ,'name': namee ,'result':'main1'});
-		  			} 
-					trip_display_head = "<h3>"; 
+				var saveroute = function(e) { 
+					if ( typeof e == 'object' && typeof e.id == 'string') { id = e.id }
+					if ( typeof e == 'object' && typeof e.name == 'string') { id = e.id }
+					if ( typeof e == 'object' && typeof e.name == 'string') { name = e.name }
+					saveThing({'stash':'routes','id': id ,'name': namee ,'result':'main1'});
+	  			} 
+				trip_display_head = "<h3>"; 
 
-					// which button should we display?
-					if (isThingSaved({ 'stash':"routes", 'id':locObj.route_short_name })){
-		                trip_display_head += "<a class='btn btn-sm btn-warning' href='#' "
-		                	+ "onclick=\"deleteThing({'stash':'routes','id':'"+ locObj.route_short_name + "','result':'main1'});\">X</a>";
-					} else {
-		                trip_display_head += "<a class='btn btn-sm btn-success' href='#' "
-		                    + "onclick=\"saveThing({'stash':'routes','id':'"+ locObj.route_short_name + "','name':'" + locObj.route_long_name + "','result':'main1'});\">+</a>";
-                    }
+				// which button should we display?
+				if (isThingSaved({ 'stash':"routes", 'id':locObj.route_short_name })){
+	                trip_display_head += "<a class='btn btn-sm btn-warning' href='#' "
+	                	+ "onclick=\"deleteThing({'stash':'routes','id':'"+ locObj.route_short_name + "','result':'main1'});\">X</a>";
+				} else {
+	                trip_display_head += "<a class='btn btn-sm btn-success' href='#' "
+	                    + "onclick=\"saveThing({'stash':'routes','id':'"+ locObj.route_short_name + "','name':'" + locObj.route_long_name + "','result':'main1'});\">+</a>";
+				}
 
  					//use standardized display 
- 					trip_display_head += routeDisplay({
-						'id':locObj.route_short_name,
-						'name':locObj.route_long_name,
-						'txcolor':locObj.route_text_color,
-						'bgcolor':locObj.route_color
-						})
+ 				trip_display_head += routeDisplay({
+					'id':locObj.route_short_name,
+					'name':locObj.route_long_name,
+					'txcolor':locObj.route_text_color,
+					'bgcolor':locObj.route_color
+				});
 
-					trip_display_head += "</h3>";
+				trip_display_head += "</h3>";
 
-					trip_display += "<li class='trip_display'>";
+				trip_display += "<li class='trip_display'>";
 
-					// put this first so it can float to the top right 
-					// and make the other text flow around it
-					trip_display +=	"<span style='float:right;'>" +
-						"<a class='btn btn-sm btn-light btn-right' href='#' role='button' " + 
-						" onclick=\"apitrips({'trip':'" +  _trip_id    + "'});\">" +
-						 _arrival_time_begin + " - " + _arrival_time_end +
-						 "</a></span>";
+				// put this first so it can float to the top right 
+				// and make the other text flow around it
 
- 					trip_display += routeDisplay({
-						'id':locObj.route_short_name,
-						'name':locObj.route_long_name + "<br /><em>" +
-						    _trip_headsign + "</em>",
-						'txcolor':locObj.route_text_color,
-						'bgcolor':locObj.route_color
-						});
+				// a trip button jas some text and a time label. 
+				trip_display +=	trip_button({
+					'label': _arrival_time_begin + " - " + _arrival_time_end,
+					'trip_id': trip_id
+				});
+ 
+				trip_display += routeDisplay({
+					'id':locObj.route_short_name,
+					'name':locObj.route_long_name + "<br /><em>" +
+				    _trip_headsign + "</em>",
+					'txcolor':locObj.route_text_color,
+					'bgcolor':locObj.route_color
+				});
  					trip_display += "</li>"
 
 /*
@@ -222,7 +239,6 @@ function apitrips(arrayin)
 					</li>
 
 */
-/// ???			    }
 			    console.log("tripsign" + locObj.trip_headsign);
 
 				//set up for the next iteration... 
@@ -299,16 +315,21 @@ stopname</a>
             //then we should check the time, make the ones that are technically dead
             //red-colored so we know not to count on it
             if (departure_time != '' && departure_time > locObj.departure) {
-            	stop_display += "<a class='btn btn-sm btn-danger btn-right' href='#' role='button' " 
-                + "onclick=\"apitrips({'trip':'" + locObj.trip_id    + "'});\">" 
-                + locObj.departure_time + "</a>" 
+//            	"<a class='btn btn-sm btn-danger btn-right' href='#' role='button' " 
+//                + "onclick=\"apitrips({'trip':'" + locObj.trip_id    + "'});\">" 
+//                + locObj.departure_time + "</a>" 
+            	stop_display += 
+					trip_button({
+					'label': locObj.depaqrture_time,
+					'trip_id': locObj.trip_id
+				});
             } else {
             	stop_display += "<a class='btn btn-sm btn-info btn-right' href='#' role='button' " 
                 + "onclick=\"apitrips({'trip':'" + locObj.trip_id    + "'});\">" 
                 + locObj.departure_time + "</a>" 
             }
 
-            	stop_display += "<a class='btn btn-sm btn-secondary btn-wide' href='#' role='button' " 
+            	stop_display += "<a class='btn btn-sm btn-primary btn-wide' href='#' role='button' " 
                 + " onclick=\"apitrips({'route':'" + locObj.route_short_name + "'});\">" 
  				+ routeDisplay({
 						'id':locObj.route_short_name,
@@ -359,12 +380,100 @@ function trimtrack(string) {
 }
 //##############################################
 //////////////////////////////////////////////////////////////////////////////////////////////////
-function apigeo(arrayin)
+// what3words support 
+//apiw3w({'coords':'35,-102'})
+//apiw3w({'coords':'35,-102'})=> returns 3w 
+//apiw3w({'lat':'35','lon':'-102'}) => returns 3w 
+
+//apiw3w({'addr':{{'lat':'35','lon':'-102'}})
+//apiw3w({'addr':'35,-102'})
+function apiw3w(arrayin)
 {
+	//GET https://api.what3words.com/v2/forward?addr=descriptive.wriggle.clipped&display=full&format=json&key=11DTQNS9
+//
+//GET https://api.what3words.com/v2/reverse?coords=51.521251,-0.203586&display=full&format=json&key=11DTQNS9
+	// handle w3w things..
+
+    console.log("arrayin");
+    console.log(arrayin);
+
+	var returnParams = proc_geo_params(arrayin);
+
+    console.log(returnParams);
+	//FORWARD
+//	var MYAPI = "https://api.what3words.com/v2/forward?";
+//	MYAPI += "key=11DTQNS9&";
+//	MYAPI += "format=json&display=full&";
+//	MYAPI += "addr=descriptive.wriggle.clipped&";
+
+// 19apr18 rca 
+// add what3words field
+// ALTER TABLE `stops` ADD `what3words` VARCHAR(30) NULL DEFAULT NULL AFTER `wheelchair_boarding`, ADD UNIQUE `what3words_index` (`what3words`(30));
+// UPDATE `stops` SET `what3words` = 'this.that.other' WHERE `stops`.`stop_lat` = $stop_lat AND stop_lon = $stop_lon
+
+
+
+
+    var MYAPI = "https://api.what3words.com/v2/reverse?";
+	MYAPI += "key=11DTQNS9&";
+	MYAPI += "format=json&display=full&";
+	if (typeof returnParams == 'string') { 
+	    MYAPI += returnParams; 
+    } else if ( typeof returnParams == 'object' && typeof arrayin.error == 'string') { 
+    	console.log (returnParams.error);
+    	// bail here?
+    }
+    // as of what time do we run this, if not now? 
+    //   MYAPI += "coords=51.521251,-0.203586";
 
 	var stop_display = '';
+	var stop_display_head = "<h3><a href='http://what3words.com/'>what3words</a></h3>";
+
+
+	updatestatus( "Fetching <a href='" + MYAPI + "&DEBUG=1' target='_blank'>" + MYAPI + "</a>");
+
+	var xmlhttp = new XMLHttpRequest();
+	xmlhttp.onreadystatechange = function() {
+	if (this.readyState == 4 && this.status == 200) {
+		var myObj = JSON.parse(this.responseText);
+
+//        if (myObj.status.code ==  200) {
+			    console.log(myObj.words);
+			    console.log(myObj.crs.properties.href);
+			    console.log(myObj.geometry.lat);
+			    console.log(myObj.geometry.lng);
+			    console.log(myObj.map);
+			    console.log(myObj);
+
+//        }
+/*
+
+
+		for (i in myObj) {
+			// use locObj for simpler referential syntax 
+			locObj = myObj[i];		
+			if (DEBUG) {
+			    addstatus( "loop=" + i + ":<br>" );
+			    console.log(locObj);
+			}
+
+*/
+
+	    updatestatus("");
+	    return (myObj.words);
+	}
+}
+xmlhttp.open("GET", MYAPI, true);
+xmlhttp.send();
+}
+
+//################################################################
+
+function apigeo(arrayin)
+{
+	var stop_display = '';
 	var stop_display_head = "<h3>Nearby stops...</h3>";
-	
+
 	var returnParams = proc_params(arrayin);
 	API = BASEAPI + 'apigeo/' + returnParams;
 	updatestatus( "Fetching <a href='" + API + "&DEBUG=1' target='_blank'>" + API + "</a>");
@@ -380,14 +489,15 @@ function apigeo(arrayin)
   			console.log(" stop id " + locObj.stop_id);
 			console.log(locObj);
 
-            stop_display += "<li class='trip_display' id='stop" + locObj.stop_id + "'>"
+            stop_display += "<span class='stop_display' id='stop" + locObj.stop_id + "'>"
                 + "<a class='btn btn-sm btn-light btn-right' " 
-				+ " href='http://maps.google.com/maps?q=" + locObj.stop_lat + "," + locObj.stop_lon 
+				+ " href='http://maps.google.com/maps?q=" + locObj.stop_lat + "," + locObj.stop_lon + "'"
 				+ " role='button'>map</a>" 
 		        + "<a class='btn btn-sm btn-outline' href='#' role='button' " 
 		        + " onclick=\"apitrips({'stop':'" + locObj.stop_id + "' });\">"
 	            + locObj.stop_name + "</a>" 
-	            + "</li>";
+	            + apiw3w({'lat':myObj.stoplat,'lon':myObj.stop_lon})
+	            + "</span>";
 		}
 		if (stop_display != '') {
 		    document.getElementById("stop_display").innerHTML = stop_display_head + stop_display;
@@ -436,6 +546,7 @@ function get_location () {
 //################################################################
 // I dont think this is the best way to set up the events below but ... 
 function resetContact () {
+
 	document.getElementById("blurb").innerHTML = " <h4>What is this?</h4> \
           <p>Bus systems have adopted a common format called GTFS (google transport file system or somesuch) that makes it easy to describe an entire transportation \
           systen, including detailed mapping, in a series of text (CSV) files. This system allows you to navigate around in a city's \
@@ -444,7 +555,8 @@ function resetContact () {
           <h4>Who is Bob?</h4>\
           <p>Bob Anzlovar (rcanzlovar at gmail) is the programmer and designer of this little app. He's done a couple \
             of other versions in PHP. This is \
-          showcasing a full stack Javascript project. </p><p>Please contact me if you are interested in hiring me. </p>\
+          showcasing a full stack Javascript project. </p><p>Please contact me if this interests you. </p>\
+          Source code at <a href='http://github.com/rcanzlovar/busroutes'>github.com/rcanzlovar/busroutes</a>\
 	<a href='http://rcanzlovar.com/'><img src='img/bobpic.jpg' alt='on to my website...'> </a>";
 
   //#######
@@ -523,3 +635,34 @@ function resetHead () {
     fetchThings({'stash':'stops','result':'main2'});
 }
 
+//##############################################
+function addstatus(status) {
+	document.getElementById("status").innerHTML += status;
+}
+//##############################################
+function updatestatus(status) {
+	if (status != '') {
+		document.getElementById("status").innerHTML = 
+			"<h4>"
+			+ status;
+			+ "<h4>";
+	}	else {
+		document.getElementById("status").innerHTML = status;
+	}
+}
+//##############################################
+
+function trimtrack(string) {
+	// some have "gate x" "track z"
+  return string.replace(/(track|gate).+$/i, ''); // $& means the whole matched string
+}
+ //######################################################
+ function trip_button(arrayin) {
+
+ 	return ( "<span style='float:right;'>" 
+			+ 	"<a class='btn btn-sm btn-light btn-right' href='#' role='button' " 
+			+ 	" onclick=\"apitrips({'trip':'" +  arrayin.trip_id    + "'});\">" 
+			+  arrayin.label
+			+ 	 "</a></span>" );
+ }
+ //######################################################
