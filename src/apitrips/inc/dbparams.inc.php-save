@@ -1,0 +1,13 @@
+<?php //inc/dbparams.inc.php
+
+$username = "root";
+$password = "wordpass123";
+
+//$dbhost = "localhost";
+$dbhost = "127.0.0.1";
+
+$dbname = 'gtfs_rtd';
+// 15apr18 rca 
+// added dsn here so it's all controlled in one place
+$dsn = "mysql:host=$dbhost;dbname=$dbname";
+?>
