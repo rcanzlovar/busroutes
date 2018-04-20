@@ -22,6 +22,7 @@ function apiw3w(arrayin)
     	return({'error':"no input"})
     }
     console.log("returnparams = " + returnParams);
+    console.log(returnParams);
 //FORWARD get lat/lon given w3w
 //	var MYAPI = "https://api.what3words.com/v2/forward?";
 //	MYAPI += "key=11DTQNS9&";
@@ -109,10 +110,25 @@ function proc_geo_params(arrayin) {
 		returnVar = 'coords';
 	}
 
-	if ( typeof arrayin == 'object' && typeof arrayin.lat == 'string' && typeof arrayin.lon == 'string' ) { 
+	if ( typeof arrayin == 'object' && typeof arrayin.lat == 'number' && typeof arrayin.lon == 'number' ) { 
+		returnParams = returnVar + '=' + arrayin.lat + ',' + arrayin.lon + '&';
+		return (returnParams);
+	} else  if ( typeof arrayin == 'object' && typeof arrayin.lat == 'string' && typeof arrayin.lon == 'string' ) { 
 		returnParams = returnVar + '=' + arrayin.lat + ',' + arrayin.lon + '&';
 		return (returnParams);
 	} else {
 		return ({'error':'ERROR need lat and lon'});
+	}
+}
+
+//##############################################
+function updatestatus(status) {
+	if (status != '') {
+		document.getElementById("status").innerHTML = 
+			"<h4>"
+			+ status;
+			+ "<h4>";
+	}	else {
+		document.getElementById("status").innerHTML = status;
 	}
 }
