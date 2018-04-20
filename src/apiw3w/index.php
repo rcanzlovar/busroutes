@@ -1,7 +1,8 @@
 <?php
-/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  */
-/*  Selection of points within specified radius of given lat/lon      (c) Chris Veness 2008-2016  */
-/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  */
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
+  dump what3words info into our local tables so we dont have to ping them all the time, 
+    just once.
+   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  */
     $DEBUG = isset($_GET['DEBUG']) ? $_GET['DEBUG']  : 0; 
 
     // defines $dsn, $dbname, $username, $password

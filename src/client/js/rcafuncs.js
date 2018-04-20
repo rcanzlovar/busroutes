@@ -401,13 +401,14 @@ function apiw3w(arrayin)
     if (returnParams	== '') { 
     	return({'error':"no input"})
     }
-    console.log(returnParams);
-	//FORWARD
+    console.log("returnparams = " + returnParams);
+//FORWARD get lat/lon given w3w
 //	var MYAPI = "https://api.what3words.com/v2/forward?";
 //	MYAPI += "key=11DTQNS9&";
 //	MYAPI += "format=json&display=full&";
 //	MYAPI += "addr=descriptive.wriggle.clipped&";
 
+//BACKWARD get w3w given lat/lon
 // 19apr18 rca 
 // add what3words field
 // ALTER TABLE `stops` ADD `what3words` VARCHAR(30) NULL DEFAULT NULL AFTER `wheelchair_boarding`, ADD UNIQUE `what3words_index` (`what3words`(30));
@@ -419,7 +420,8 @@ function apiw3w(arrayin)
 	    MYAPI += returnParams; 
 	    console.log("MYAPI" + MYAPI); 
     } else if ( typeof returnParams == 'object' && typeof arrayin.error == 'string') { 
-    	console.log (returnParams.error);
+    	console.log ("error " + returnParams.error);
+       MYAPI += "coords=51.521251,-0.203586";
     	// bail here?
     }
     // as of what time do we run this, if not now? 
@@ -466,7 +468,8 @@ function apiw3w(arrayin)
 */
 
 	    updatestatus(myObj.words);
-	    return(myObj.words);
+	    var	foo = myObj.words;
+	    return(foo);
 	}
 }
 xmlhttp.open("GET", MYAPI, true);
